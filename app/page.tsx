@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import LoginForm from "@/components/LoginForm";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +22,14 @@ export default async function Home() {
         </p>
       </div>
 
-      <LoginForm />
+      <div className="w-full max-w-sm">
+        <div className="card-solid p-6 shadow-card text-center">
+          <p className="text-white font-semibold mb-2">Access via the Predictions App</p>
+          <p className="text-purple-300/70 text-sm">
+            Tap the Khal Bala banner in the World Cup Predictions app to enter automatically.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
