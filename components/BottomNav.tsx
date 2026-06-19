@@ -16,8 +16,13 @@ export default function BottomNav({ displayName }: { displayName: string }) {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-    router.refresh();
+    // Try closing the tab (works when opened via window.open from the banner)
+    window.close();
+    // Fallback if browser blocks window.close() — redirect to landing page
+    setTimeout(() => {
+      router.push("/");
+      router.refresh();
+    }, 300);
   }
 
   return (

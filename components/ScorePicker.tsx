@@ -11,6 +11,7 @@ type Props = {
   stageLabel: string;
   initialScoreA: number | null;
   initialScoreB: number | null;
+  locked: boolean;
 };
 
 const TZ = "America/New_York";
@@ -26,7 +27,7 @@ function fmtTime(iso: string): string {
 
 export default function ScorePicker({
   matchId, teamA, teamB, kickoffUtc, stageLabel: stageLbl,
-  initialScoreA, initialScoreB,
+  initialScoreA, initialScoreB, locked,
 }: Props) {
   const [scoreA, setScoreA] = useState<number>(initialScoreA ?? 0);
   const [scoreB, setScoreB] = useState<number>(initialScoreB ?? 0);
@@ -35,6 +36,7 @@ export default function ScorePicker({
   const [error, setError] = useState("");
 
   function adjust(team: "A" | "B", delta: number) {
+    if (locked) return;
     if (team === "A") setScoreA((v) => Math.max(0, Math.min(20, v + delta)));
     else setScoreB((v) => Math.max(0, Math.min(20, v + delta)));
     setSaved(false);
@@ -118,17 +120,23 @@ export default function ScorePicker({
 
       {/* Save button */}
       <div className="mt-4 flex items-center gap-3">
-        <button
-          onClick={save}
-          disabled={busy}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition-all active:scale-95 ${
-            saved
-              ? "bg-purple-600/30 text-purple-300 border border-purple-600/40"
-              : "bg-gradient-to-r from-purple-900 to-purple-700 text-white border border-purple-600/40 hover:from-purple-800 hover:to-purple-600"
-          }`}
-        >
-          {busy ? "Saving..." : saved ? "✓ Saved" : "Save Prediction"}
-        </button>
+        {locked ? (
+          <div className="flex-1 rounded-xl py-2.5 text-sm font-bold text-center text-purple-400/60 bg-white/5 border border-purple-700/30">
+            🔒 Locked
+          </div>
+        ) : (
+          <button
+            onClick={save}
+            disabled={busy}
+            className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition-all active:scale-95 ${
+              saved
+                ? "bg-purple-600/30 text-purple-300 border border-purple-600/40"
+                : "bg-gradient-to-r from-purple-900 to-purple-700 text-white border border-purple-600/40 hover:from-purple-800 hover:to-purple-600"
+            }`}
+          >
+            {busy ? "Saving..." : saved ? "✓ Saved" : "Save Prediction"}
+          </button>
+        )}
       </div>
 
       {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { syncIfStale } from "@/lib/football";
 import BottomNav from "@/components/BottomNav";
 import ScorePicker from "@/components/ScorePicker";
+import RulesPopup, { RulesButton } from "@/components/RulesPopup";
 import { stageLabel } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +13,11 @@ export default async function GamePage() {
   const session = await getSession();
   if (!session) redirect("/");
 
+  // Sync knockout matches from football-data.org if stale (≥5 min)
+  await syncIfStale();
+
   const supabase = db();
+  const now = new Date();
 
   const [{ data: matches }, { data: myPreds }] = await Promise.all([
     supabase.from("kb_matches").select("*").order("kickoff_utc", { ascending: true }),
@@ -29,16 +35,23 @@ export default async function GamePage() {
 
   return (
     <>
+      <RulesPopup />
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
         {/* Header */}
         <div className="rounded-3xl bg-gradient-to-br from-purple-900 via-purple-950 to-[#0f0a1a] px-6 py-5 mb-6 text-center border border-purple-800/30">
-          <div className="text-3xl mb-1">🃏</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-16" />
+            <div className="text-3xl">🃏</div>
+            <div className="w-16 flex justify-end">
+              <RulesButton />
+            </div>
+          </div>
           <div className="text-xs font-bold tracking-widest text-purple-400 uppercase">Khal Bala · خال بالا</div>
           <div className="text-white font-bold mt-1">
             Hi {session.displayName}! 👋
           </div>
           <div className="text-purple-300/70 text-xs mt-1">
-            {upcoming.length} match{upcoming.length !== 1 ? "es" : ""} open for prediction
+            {upcoming.filter((m) => new Date(m.kickoff_utc) > now).length} match{upcoming.filter((m) => new Date(m.kickoff_utc) > now).length !== 1 ? "es" : ""} open for prediction
           </div>
         </div>
 
@@ -59,19 +72,23 @@ export default async function GamePage() {
               Open for Prediction
             </h2>
             <div className="space-y-3">
-              {upcoming.map((m) => (
-                <ScorePicker
-                  key={m.id}
-                  matchId={m.id}
-                  teamA={m.team_a}
-                  teamB={m.team_b}
-                  kickoffUtc={m.kickoff_utc}
-                  stage={m.stage}
-                  stageLabel={stageLabel(m.stage)}
-                  initialScoreA={predMap.get(m.id)?.scoreA ?? null}
-                  initialScoreB={predMap.get(m.id)?.scoreB ?? null}
-                />
-              ))}
+              {upcoming.map((m) => {
+                const locked = new Date(m.kickoff_utc) <= now || m.status === "IN_PLAY";
+                return (
+                  <ScorePicker
+                    key={m.id}
+                    matchId={m.id}
+                    teamA={m.team_a}
+                    teamB={m.team_b}
+                    kickoffUtc={m.kickoff_utc}
+                    stage={m.stage}
+                    stageLabel={stageLabel(m.stage)}
+                    initialScoreA={predMap.get(m.id)?.scoreA ?? null}
+                    initialScoreB={predMap.get(m.id)?.scoreB ?? null}
+                    locked={locked}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
