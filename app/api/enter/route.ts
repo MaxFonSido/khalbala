@@ -50,9 +50,21 @@ export async function GET(req: Request) {
       .single();
 
     if (error || !newUser) {
-      return NextResponse.redirect(new URL("/?error=create", req.url));
+      // Likely a duplicate (row already exists despite our lookup missing it) —
+      // try fetching it directly before giving up.
+      const { data: existing } = await supabase
+        .from("kb_users")
+        .select("id, display_name")
+        .eq("display_name", displayName)
+        .maybeSingle();
+
+      if (!existing) {
+        return NextResponse.redirect(new URL("/?error=create", req.url));
+      }
+      user = existing;
+    } else {
+      user = newUser;
     }
-    user = newUser;
   }
 
   // Create session and redirect to game
