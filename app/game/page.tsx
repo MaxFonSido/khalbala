@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { syncIfStale } from "@/lib/football";
 import BottomNav from "@/components/BottomNav";
 import ScorePicker from "@/components/ScorePicker";
+import ResultCard from "@/components/ResultCard";
 import RulesPopup, { RulesButton } from "@/components/RulesPopup";
 import { stageLabel } from "@/lib/scoring";
 
@@ -100,26 +101,21 @@ export default async function GamePage() {
             <h2 className="text-xs font-bold tracking-widest text-purple-400 uppercase mb-3">
               Results
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {finished.map((m) => {
                 const pred = predMap.get(m.id);
                 return (
-                  <div key={m.id} className="card-solid px-5 py-4">
-                    <div className="text-xs text-purple-400/70 mb-2">{stageLabel(m.stage)}</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-bold text-white flex-1">{m.team_a}</div>
-                      <div className="text-center px-4">
-                        <div className="text-xl font-extrabold text-gold">{m.score_a}–{m.score_b}</div>
-                        <div className="text-[10px] text-purple-400/60">Final</div>
-                        {pred && (
-                          <div className="text-[10px] text-purple-300/60 mt-0.5">
-                            Your pick: {pred.scoreA}–{pred.scoreB}
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-sm font-bold text-white flex-1 text-right">{m.team_b}</div>
-                    </div>
-                  </div>
+                  <ResultCard
+                    key={m.id}
+                    teamA={m.team_a}
+                    teamB={m.team_b}
+                    scoreA={m.score_a}
+                    scoreB={m.score_b}
+                    stage={m.stage}
+                    predScoreA={pred?.scoreA ?? null}
+                    predScoreB={pred?.scoreB ?? null}
+                    predAdvances={pred?.advances ?? null}
+                  />
                 );
               })}
             </div>
