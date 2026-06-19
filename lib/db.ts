@@ -4,5 +4,9 @@ export function db() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("Missing Supabase env vars");
-  return createClient(url, key);
+  return createClient(url, key, {
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    },
+  });
 }
