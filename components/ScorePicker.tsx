@@ -11,6 +11,7 @@ type Props = {
   stageLabel: string;
   initialScoreA: number | null;
   initialScoreB: number | null;
+  initialAdvances: string | null;
   locked: boolean;
 };
 
@@ -27,30 +28,41 @@ function fmtTime(iso: string): string {
 
 export default function ScorePicker({
   matchId, teamA, teamB, kickoffUtc, stageLabel: stageLbl,
-  initialScoreA, initialScoreB, locked,
+  initialScoreA, initialScoreB, initialAdvances, locked,
 }: Props) {
   const [scoreA, setScoreA] = useState<number>(initialScoreA ?? 0);
   const [scoreB, setScoreB] = useState<number>(initialScoreB ?? 0);
+  const [advances, setAdvances] = useState<string | null>(initialAdvances);
   const [saved, setSaved] = useState(initialScoreA !== null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const isDraw = scoreA === scoreB;
 
   function adjust(team: "A" | "B", delta: number) {
     if (locked) return;
     if (team === "A") setScoreA((v) => Math.max(0, Math.min(20, v + delta)));
     else setScoreB((v) => Math.max(0, Math.min(20, v + delta)));
     setSaved(false);
+    setAdvances(null);
     setError("");
   }
 
   async function save() {
+    if (isDraw && !advances) {
+      setError("Pick who advances on penalties!");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
       const res = await fetch("/api/predictions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId, scoreA, scoreB }),
+        body: JSON.stringify({
+          matchId, scoreA, scoreB,
+          advances: isDraw ? advances : null,
+        }),
       });
       if (res.ok) {
         setSaved(true);
@@ -117,6 +129,44 @@ export default function ScorePicker({
           </div>
         </div>
       </div>
+
+      {/* Who advances? — only visible on draw */}
+      {isDraw && !locked && (
+        <div className="mt-4 rounded-xl bg-purple-900/30 border border-purple-700/30 p-3">
+          <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wide text-center mb-2">
+            ⚽ Who advances on penalties?
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setAdvances(teamA); setSaved(false); }}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
+                advances === teamA
+                  ? "bg-purple-600 text-white border border-purple-500"
+                  : "bg-white/5 text-purple-300/70 border border-purple-700/30 hover:bg-white/10"
+              }`}
+            >
+              {teamA}
+            </button>
+            <button
+              onClick={() => { setAdvances(teamB); setSaved(false); }}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
+                advances === teamB
+                  ? "bg-purple-600 text-white border border-purple-500"
+                  : "bg-white/5 text-purple-300/70 border border-purple-700/30 hover:bg-white/10"
+              }`}
+            >
+              {teamB}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Locked draw — show who they picked */}
+      {isDraw && locked && advances && (
+        <div className="mt-3 text-center text-xs text-purple-300/60">
+          ⚽ Advances: <span className="font-bold text-purple-300">{advances}</span>
+        </div>
+      )}
 
       {/* Save button */}
       <div className="mt-4 flex items-center gap-3">

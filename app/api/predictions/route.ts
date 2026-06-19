@@ -6,12 +6,16 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { matchId, scoreA, scoreB } = await req.json();
+  const { matchId, scoreA, scoreB, advances } = await req.json();
   if (!matchId || scoreA == null || scoreB == null) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
   if (!Number.isInteger(scoreA) || !Number.isInteger(scoreB) || scoreA < 0 || scoreB < 0 || scoreA > 20 || scoreB > 20) {
     return NextResponse.json({ error: "Invalid scores" }, { status: 400 });
+  }
+  // Draws require an advances pick
+  if (scoreA === scoreB && !advances) {
+    return NextResponse.json({ error: "Pick who advances on penalties" }, { status: 400 });
   }
 
   const supabase = db();
@@ -34,7 +38,13 @@ export async function POST(req: Request) {
   const { error } = await supabase
     .from("kb_predictions")
     .upsert(
-      { user_id: session.userId, match_id: matchId, score_a: scoreA, score_b: scoreB },
+      {
+        user_id: session.userId,
+        match_id: matchId,
+        score_a: scoreA,
+        score_b: scoreB,
+        advances: scoreA === scoreB ? advances : null,
+      },
       { onConflict: "user_id,match_id" }
     );
 

@@ -22,12 +22,12 @@ export default async function GamePage() {
   const [{ data: matches }, { data: myPreds }] = await Promise.all([
     supabase.from("kb_matches").select("*").order("kickoff_utc", { ascending: true }),
     supabase.from("kb_predictions")
-      .select("match_id, score_a, score_b")
+      .select("match_id, score_a, score_b, advances")
       .eq("user_id", session.userId),
   ]);
 
   const predMap = new Map(
-    (myPreds ?? []).map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b }])
+    (myPreds ?? []).map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
   );
 
   const upcoming = (matches ?? []).filter((m) => m.status !== "FINISHED");
@@ -85,6 +85,7 @@ export default async function GamePage() {
                     stageLabel={stageLabel(m.stage)}
                     initialScoreA={predMap.get(m.id)?.scoreA ?? null}
                     initialScoreB={predMap.get(m.id)?.scoreB ?? null}
+                    initialAdvances={predMap.get(m.id)?.advances ?? null}
                     locked={locked}
                   />
                 );
