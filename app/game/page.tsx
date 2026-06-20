@@ -11,7 +11,7 @@ import { stageLabel } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
 
-const ROUND_ORDER = ["LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"];
+const ROUND_ORDER = ["LAST_32", "ROUND_OF_32", "LAST_16", "ROUND_OF_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"];
 
 export default async function GamePage() {
   const session = await getSession();
@@ -25,10 +25,10 @@ export default async function GamePage() {
   const [{ data: matches }, { data: allPreds }, { data: users }] = await Promise.all([
     supabase.from("kb_matches").select("*").order("kickoff_utc", { ascending: true }),
     supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b, advances"),
-    supabase.from("kb_users").select("id, display_name"),
+    supabase.from("kb_users").select("id, display_name, avatar_emoji"),
   ]);
 
-  const nameById = new Map((users ?? []).map((u) => [u.id, u.display_name as string]));
+  const userById = new Map((users ?? []).map((u) => [u.id, { name: u.display_name as string, emoji: u.avatar_emoji as string | null }]));
 
   // My picks
   const myPreds = (allPreds ?? []).filter((p) => p.user_id === session.userId);
@@ -37,12 +37,14 @@ export default async function GamePage() {
   );
 
   // Other users' picks per match
-  const otherPicksByMatch = new Map<string, { name: string; scoreA: number; scoreB: number; advances: string | null }[]>();
+  const otherPicksByMatch = new Map<string, { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null }[]>();
   for (const p of allPreds ?? []) {
     if (p.user_id === session.userId) continue;
+    const u = userById.get(p.user_id);
     const list = otherPicksByMatch.get(p.match_id) ?? [];
     list.push({
-      name: nameById.get(p.user_id) ?? "?",
+      name: u?.name ?? "?",
+      avatarEmoji: u?.emoji ?? null,
       scoreA: p.score_a,
       scoreB: p.score_b,
       advances: p.advances,

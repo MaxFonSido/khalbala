@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type OtherPick = { name: string; scoreA: number; scoreB: number; advances: string | null };
+type OtherPick = { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null };
 
 type Props = {
   matchId: string;
@@ -206,7 +206,10 @@ export default function ScorePicker({
           <div className="space-y-1">
             {otherPicks.map((p) => (
               <div key={p.name} className="flex items-center justify-between text-xs">
-                <span className="text-ink-text">{p.name}</span>
+                <span className="text-ink-text">
+                  {p.avatarEmoji && <span className="mr-1">{p.avatarEmoji}</span>}
+                  {p.name}
+                </span>
                 <span className="text-muted tnum">
                   {p.scoreA}–{p.scoreB}
                   {p.scoreA === p.scoreB && p.advances && (

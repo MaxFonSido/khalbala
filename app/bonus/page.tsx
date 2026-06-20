@@ -13,10 +13,11 @@ export default async function BonusPage() {
 
   const supabase = db();
 
-  const [{ data: bonus }, { data: meta }, { data: teams }] = await Promise.all([
+  const [{ data: bonus }, { data: meta }, { data: teams }, { data: players }] = await Promise.all([
     supabase.from("kb_bonus").select("champion, top_scorer").eq("user_id", session.userId).maybeSingle(),
     supabase.from("kb_meta").select("key, value").eq("key", "bonus_locked").maybeSingle(),
     supabase.from("kb_matches").select("team_a, team_b").order("kickoff_utc", { ascending: true }),
+    supabase.from("kb_players").select("name, team").order("team").order("name"),
   ]);
 
   const locked = meta?.value === "true";
@@ -40,6 +41,7 @@ export default async function BonusPage() {
           initialTopScorer={bonus?.top_scorer ?? null}
           locked={locked}
           teams={allTeams}
+          players={(players ?? []).map((p) => ({ name: p.name, team: p.team }))}
         />
 
         <div className="mt-4 card-solid p-4">

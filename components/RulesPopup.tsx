@@ -150,7 +150,7 @@ function FarsiRules() {
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⭐ نتیجه دقیق</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۵ امتیاز</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>✅ برنده + اختلاف گل درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۳ امتیاز</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>👍 فقط برنده درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۱ امتیاز</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ اشتباه</span><span style={{ color: "#8A8290" }}>۰ امتیاز</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ اشتباه</span><span style={{ color: "#8A8290" }}>۱- امتیاز</span></div>
       </div>
 
       <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🔥 ضرایب مرحله‌ای</p>
@@ -163,12 +163,12 @@ function FarsiRules() {
 
       <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🏆 پیش‌بینی ویژه</p>
       <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 قهرمان جهان</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۱۰ امتیاز</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 قهرمان جهان</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۱۱- امتیاز</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⚽ آقای گل</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۸ امتیاز</span></div>
       </div>
 
       <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "20px" }}>
-        پیش‌بینی‌ها قبل از شروع هر بازی قفل می‌شوند. امتیاز منفی وجود ندارد!
+        پیش‌بینی‌ها قبل از شروع هر بازی قفل می‌شوند. پیش‌بینی اشتباه = ۱- امتیاز (ثابت، بدون ضریب)
       </p>
     </div>
   );
@@ -185,7 +185,7 @@ function EnglishRules() {
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⭐ Exact score</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>5 pts</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>✅ Right winner + goal difference</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>3 pts</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>👍 Right winner only</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>1 pt</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ Wrong</span><span style={{ color: "#8A8290" }}>0 pts</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ Wrong</span><span style={{ color: "#8A8290" }}>-1 pt</span></div>
       </div>
 
       <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🔥 Knockout Multipliers</p>
@@ -198,12 +198,12 @@ function EnglishRules() {
 
       <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🏆 Bonus Predictions</p>
       <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 World Cup Champion</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+10 pts</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 World Cup Champion</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+1-1 pt</span></div>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⚽ Tournament Top Scorer</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+8 pts</span></div>
       </div>
 
       <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "20px" }}>
-        Predictions lock at kickoff. No negative points — go bold!
+        Predictions lock at kickoff. Wrong prediction = -1 pt (flat, no multiplier). Go bold!
       </p>
     </div>
   );

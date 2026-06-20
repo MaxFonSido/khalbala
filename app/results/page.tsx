@@ -10,7 +10,7 @@ import { stageLabel, type Stage } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
 
-const ROUND_ORDER = ["LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"];
+const ROUND_ORDER = ["LAST_32", "ROUND_OF_32", "LAST_16", "ROUND_OF_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"];
 
 export default async function ResultsPage() {
   const session = await getSession();

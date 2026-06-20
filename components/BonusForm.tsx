@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import PlayerSearch from "./PlayerSearch";
+
+type Player = { name: string; team: string };
 
 type Props = {
   initialChampion: string | null;
   initialTopScorer: string | null;
   locked: boolean;
   teams: string[];
+  players: Player[];
 };
 
-export default function BonusForm({ initialChampion, initialTopScorer, locked, teams }: Props) {
+export default function BonusForm({ initialChampion, initialTopScorer, locked, teams, players }: Props) {
   const [champion, setChampion] = useState(initialChampion ?? "");
   const [topScorer, setTopScorer] = useState(initialTopScorer ?? "");
   const [saved, setSaved] = useState(!!(initialChampion || initialTopScorer));
@@ -67,14 +71,12 @@ export default function BonusForm({ initialChampion, initialTopScorer, locked, t
 
         <div>
           <label className="block text-xs text-gold mb-1.5 font-semibold">⚽ Tournament Top Scorer</label>
-          <input
-            type="text"
+          <PlayerSearch
+            players={players}
             value={topScorer}
-            onChange={(e) => { setTopScorer(e.target.value); setSaved(false); }}
-            placeholder="e.g. Mbappé"
-            className="w-full rounded-xl bg-ink border border-surface-border px-4 py-3 text-ink-text placeholder-muted-dim focus:outline-none focus:border-gold text-sm"
+            onChange={(name) => { setTopScorer(name); setSaved(false); }}
           />
-          <p className="text-xs text-muted mt-1">Type any player name</p>
+          <p className="text-xs text-muted mt-1">Search by player or team name</p>
         </div>
 
         {error && <p className="text-ember text-xs">{error}</p>}

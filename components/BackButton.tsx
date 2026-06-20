@@ -12,9 +12,21 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="text-muted hover:text-gold text-sm font-semibold flex items-center gap-1 transition-colors"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "4px",
+        padding: "6px 14px",
+        borderRadius: "999px",
+        border: "1px solid #E8B74A",
+        background: "transparent",
+        color: "#E8B74A",
+        fontSize: "12px",
+        fontWeight: 600,
+        cursor: "pointer",
+      }}
     >
-      ← Back
+      ← Back to App
     </button>
   );
 }
