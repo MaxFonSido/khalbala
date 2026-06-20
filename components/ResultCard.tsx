@@ -3,6 +3,8 @@ import { scoreMatch, stageLabel, type Stage } from "@/lib/scoring";
 type Props = {
   teamA: string;
   teamB: string;
+  teamACrest: string | null;
+  teamBCrest: string | null;
   scoreA: number;
   scoreB: number;
   stage: Stage;
@@ -12,8 +14,14 @@ type Props = {
   predAdvances: string | null;
 };
 
+function Crest({ url, name }: { url: string | null; name: string }) {
+  if (!url) return <span className="text-base">🏳️</span>;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt={name} className="h-5 w-5 object-contain inline-block" />;
+}
+
 export default function ResultCard({
-  teamA, teamB, scoreA, scoreB, stage, status,
+  teamA, teamB, teamACrest, teamBCrest, scoreA, scoreB, stage, status,
   predScoreA, predScoreB, predAdvances,
 }: Props) {
   const hasPick = predScoreA !== null && predScoreB !== null;
@@ -60,10 +68,12 @@ export default function ResultCard({
         </span>
       </div>
 
-      <div className="flex items-baseline justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <Crest url={teamACrest} name={teamA} />
         <span className="text-[15px] font-bold text-ink-text truncate">
           {teamA} <span className="tnum text-muted">{scoreA ?? "–"}–{scoreB ?? "–"}</span> {teamB}
         </span>
+        <Crest url={teamBCrest} name={teamB} />
       </div>
 
       {hasPick ? (

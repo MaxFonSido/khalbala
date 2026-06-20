@@ -21,18 +21,35 @@ export default async function GamePage() {
   const supabase = db();
   const now = new Date();
 
-  const [{ data: matches }, { data: myPreds }] = await Promise.all([
+  const [{ data: matches }, { data: allPreds }, { data: users }] = await Promise.all([
     supabase.from("kb_matches").select("*").order("kickoff_utc", { ascending: true }),
-    supabase.from("kb_predictions")
-      .select("match_id, score_a, score_b, advances")
-      .eq("user_id", session.userId),
+    supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b, advances"),
+    supabase.from("kb_users").select("id, display_name"),
   ]);
 
+  const nameById = new Map((users ?? []).map((u) => [u.id, u.display_name as string]));
+
+  // My picks
+  const myPreds = (allPreds ?? []).filter((p) => p.user_id === session.userId);
   const predMap = new Map(
-    (myPreds ?? []).map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
+    myPreds.map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
   );
 
-  // Only show upcoming open matches on Predict tab
+  // Other users' picks per match
+  const otherPicksByMatch = new Map<string, { name: string; scoreA: number; scoreB: number; advances: string | null }[]>();
+  for (const p of allPreds ?? []) {
+    if (p.user_id === session.userId) continue;
+    const list = otherPicksByMatch.get(p.match_id) ?? [];
+    list.push({
+      name: nameById.get(p.user_id) ?? "?",
+      scoreA: p.score_a,
+      scoreB: p.score_b,
+      advances: p.advances,
+    });
+    otherPicksByMatch.set(p.match_id, list);
+  }
+
+  // Show ALL matches that haven't kicked off yet (no 24h window)
   const open = (matches ?? []).filter(
     (m) => ["TIMED", "SCHEDULED"].includes(m.status) && new Date(m.kickoff_utc) > now
   );
@@ -68,7 +85,6 @@ export default async function GamePage() {
           </div>
         </div>
 
-        {/* Matches grouped by round */}
         {rounds.length === 0 && (
           <div className="card-solid p-8 text-center">
             <div className="text-4xl mb-3">⏳</div>
@@ -92,6 +108,8 @@ export default async function GamePage() {
                 matchId={m.id}
                 teamA={m.team_a}
                 teamB={m.team_b}
+                teamACrest={m.team_a_crest ?? null}
+                teamBCrest={m.team_b_crest ?? null}
                 kickoffUtc={m.kickoff_utc}
                 stage={m.stage}
                 stageLabel={stageLabel(m.stage)}
@@ -99,6 +117,7 @@ export default async function GamePage() {
                 initialScoreB={predMap.get(m.id)?.scoreB ?? null}
                 initialAdvances={predMap.get(m.id)?.advances ?? null}
                 locked={false}
+                otherPicks={otherPicksByMatch.get(m.id) ?? []}
               />
             ))}
           </RoundAccordion>

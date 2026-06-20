@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 
+type OtherPick = { name: string; scoreA: number; scoreB: number; advances: string | null };
+
 type Props = {
   matchId: string;
   teamA: string;
   teamB: string;
+  teamACrest: string | null;
+  teamBCrest: string | null;
   kickoffUtc: string;
   stage: string;
   stageLabel: string;
@@ -13,6 +17,7 @@ type Props = {
   initialScoreB: number | null;
   initialAdvances: string | null;
   locked: boolean;
+  otherPicks: OtherPick[];
 };
 
 const TZ = "America/New_York";
@@ -26,9 +31,15 @@ function fmtTime(iso: string): string {
   } catch { return ""; }
 }
 
+function Crest({ url, name }: { url: string | null; name: string }) {
+  if (!url) return <span className="text-xl">🏳️</span>;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt={name} className="h-6 w-6 object-contain" />;
+}
+
 export default function ScorePicker({
-  matchId, teamA, teamB, kickoffUtc, stageLabel: stageLbl,
-  initialScoreA, initialScoreB, initialAdvances, locked,
+  matchId, teamA, teamB, teamACrest, teamBCrest, kickoffUtc, stageLabel: stageLbl,
+  initialScoreA, initialScoreB, initialAdvances, locked, otherPicks,
 }: Props) {
   const [scoreA, setScoreA] = useState<number>(initialScoreA ?? 0);
   const [scoreB, setScoreB] = useState<number>(initialScoreB ?? 0);
@@ -80,7 +91,7 @@ export default function ScorePicker({
   return (
     <div className={`px-5 py-4 transition-all ${saved ? "card-active" : "card-solid"}`}>
       {/* Stage + time */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] font-bold text-muted uppercase tracking-wide">{stageLbl}</span>
       </div>
       <div className="text-[10px] text-muted-dim mb-4">{fmtTime(kickoffUtc)}</div>
@@ -89,7 +100,10 @@ export default function ScorePicker({
       <div className="flex items-center gap-3">
         {/* Team A */}
         <div className="flex-1 text-center">
-          <div className="text-sm font-bold text-ink-text mb-3">{teamA}</div>
+          <div className="flex items-center justify-center gap-1.5 mb-3">
+            <Crest url={teamACrest} name={teamA} />
+            <span className="text-sm font-bold text-ink-text">{teamA}</span>
+          </div>
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => adjust("A", -1)}
@@ -103,12 +117,14 @@ export default function ScorePicker({
           </div>
         </div>
 
-        {/* VS */}
         <div className="text-muted-dim font-bold text-sm">–</div>
 
         {/* Team B */}
         <div className="flex-1 text-center">
-          <div className="text-sm font-bold text-ink-text mb-3">{teamB}</div>
+          <div className="flex items-center justify-center gap-1.5 mb-3">
+            <Crest url={teamBCrest} name={teamB} />
+            <span className="text-sm font-bold text-ink-text">{teamB}</span>
+          </div>
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => adjust("B", -1)}
@@ -123,7 +139,7 @@ export default function ScorePicker({
         </div>
       </div>
 
-      {/* Who advances? — only visible on draw */}
+      {/* Who advances? */}
       {isDraw && !locked && (
         <div className="mt-4 rounded-xl bg-ink border border-surface-border p-3">
           <div className="text-[10px] font-bold text-gold uppercase tracking-wide text-center mb-2">
@@ -154,7 +170,6 @@ export default function ScorePicker({
         </div>
       )}
 
-      {/* Locked draw — show who they picked */}
       {isDraw && locked && advances && (
         <div className="mt-3 text-center text-xs text-muted">
           Advances: <span className="font-bold text-gold">{advances}</span>
@@ -183,6 +198,26 @@ export default function ScorePicker({
       </div>
 
       {error && <p className="text-ember text-xs mt-2 text-center">{error}</p>}
+
+      {/* Other players' picks */}
+      {otherPicks.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-surface-border">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wide mb-2">Family picks</div>
+          <div className="space-y-1">
+            {otherPicks.map((p) => (
+              <div key={p.name} className="flex items-center justify-between text-xs">
+                <span className="text-ink-text">{p.name}</span>
+                <span className="text-muted tnum">
+                  {p.scoreA}–{p.scoreB}
+                  {p.scoreA === p.scoreB && p.advances && (
+                    <span className="text-muted-dim ml-1">({p.advances})</span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

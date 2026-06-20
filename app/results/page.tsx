@@ -84,6 +84,8 @@ export default async function ResultsPage() {
                   key={m.id}
                   teamA={m.team_a}
                   teamB={m.team_b}
+                  teamACrest={m.team_a_crest ?? null}
+                  teamBCrest={m.team_b_crest ?? null}
                   scoreA={m.score_a}
                   scoreB={m.score_b}
                   stage={m.stage as Stage}

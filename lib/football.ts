@@ -51,6 +51,8 @@ export async function syncKnockoutMatches(): Promise<{ updated: number }> {
     external_id: m.id,
     team_a: m.homeTeam.name!,
     team_b: m.awayTeam.name!,
+    team_a_crest: m.homeTeam.crest ?? null,
+    team_b_crest: m.awayTeam.crest ?? null,
     kickoff_utc: m.utcDate,
     stage: m.stage,
     status: m.status === "TIMED" || m.status === "SCHEDULED" ? "TIMED" : m.status,
