@@ -5,7 +5,8 @@ import { syncIfStale } from "@/lib/football";
 import BottomNav from "@/components/BottomNav";
 import ScorePicker from "@/components/ScorePicker";
 import RoundAccordion from "@/components/RoundAccordion";
-import RulesPopup, { RulesButton } from "@/components/RulesPopup";
+import RulesPopup from "@/components/RulesPopup";
+import BackButton from "@/components/BackButton";
 import { stageLabel } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
@@ -73,8 +74,9 @@ export default async function GamePage() {
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
         {/* Header */}
         <div className="card-solid px-6 py-5 mb-6 text-center">
-          <div className="flex items-center justify-end mb-2">
-            <RulesButton />
+          <div className="flex items-center justify-between mb-2">
+            <BackButton />
+            <div />
           </div>
           <div className="text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
           <div className="text-ink-text font-bold text-lg mt-1">

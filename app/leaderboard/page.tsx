@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import BottomNav from "@/components/BottomNav";
+import BackButton from "@/components/BackButton";
 import { scoreMatch, BONUS_CHAMPION_PTS, BONUS_TOP_SCORER_PTS } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,10 @@ export default async function LeaderboardPage() {
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
         <div className="card-solid px-6 py-5 mb-6 text-center">
+          <div className="flex items-center justify-between mb-2">
+            <BackButton />
+            <div />
+          </div>
           <div className="text-3xl mb-1">🏅</div>
           <div className="text-xs font-bold tracking-widest text-gold uppercase">Ranking</div>
           <div className="text-ink-text font-bold mt-1">Khal Bala · خال بالا</div>

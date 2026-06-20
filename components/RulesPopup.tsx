@@ -18,55 +18,19 @@ export default function RulesPopup() {
   if (!show) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        background: "rgba(0,0,0,0.85)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.75)" }}>
       {/* Backdrop tap to close */}
-      <div style={{ position: "absolute", inset: 0 }} onClick={() => setShow(false)} />
+      <div className="absolute inset-0" onClick={() => setShow(false)} />
 
       {/* Modal */}
       <div
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "420px",
-          maxHeight: "80vh",
-          display: "flex",
-          flexDirection: "column",
-          background: "#211A2A",
-          border: "1px solid #332940",
-          borderRadius: "1.25rem",
-          boxShadow: "0 4px 30px rgba(0,0,0,0.6)",
-          overflow: "hidden",
-        }}
+        className="relative w-full max-w-md bg-surface border border-surface-border shadow-card overflow-hidden"
+        style={{ borderRadius: "1.25rem", maxHeight: "80vh", display: "flex", flexDirection: "column" }}
       >
         {/* Close button */}
         <button
           onClick={() => setShow(false)}
-          style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            background: "none",
-            border: "none",
-            color: "#8A8290",
-            fontSize: "20px",
-            cursor: "pointer",
-            zIndex: 10,
-            padding: "4px",
-          }}
+          className="absolute top-3 right-3 text-muted hover:text-ink-text text-xl z-10 p-1"
           aria-label="Close"
         >
           ✕
@@ -74,7 +38,7 @@ export default function RulesPopup() {
 
         {/* Header */}
         <div style={{ textAlign: "center", padding: "20px 24px 12px", borderBottom: "1px solid #332940", flexShrink: 0 }}>
-          <h2 style={{ color: "#E8B74A", fontWeight: 700, fontSize: "18px", margin: 0 }}>Khal Bala · خال بالا</h2>
+          <h2 className="text-gold font-bold text-lg">Khal Bala · خال بالا</h2>
         </div>
 
         {/* Language tabs */}
@@ -106,21 +70,12 @@ export default function RulesPopup() {
           {tab === "fa" ? <FarsiRules /> : <EnglishRules />}
         </div>
 
-        {/* Fixed footer button */}
+        {/* Fixed footer button — ALWAYS visible */}
         <div style={{ padding: "16px 24px", borderTop: "1px solid #332940", flexShrink: 0 }}>
           <button
             onClick={() => setShow(false)}
-            style={{
-              width: "100%",
-              background: "#E8B74A",
-              color: "#412402",
-              fontWeight: 700,
-              fontSize: "15px",
-              border: "none",
-              borderRadius: "12px",
-              padding: "14px",
-              cursor: "pointer",
-            }}
+            className="btn-primary w-full text-center"
+            style={{ borderRadius: "12px", padding: "14px" }}
           >
             {tab === "fa" ? "!بزن بریم" : "Let's Play!"}
           </button>
@@ -148,33 +103,33 @@ export function RulesButton() {
 
 function FarsiRules() {
   return (
-    <div dir="rtl" style={{ textAlign: "right", color: "#F2EDE4", fontSize: "14px" }}>
+    <div dir="rtl" className="text-right space-y-4 text-sm" style={{ color: "#F2EDE4" }}>
       <p style={{ fontWeight: 700, color: "#E8B74A" }}>🎯 نحوه بازی</p>
-      <p style={{ marginTop: "8px" }}>نتیجه دقیق هر بازی مرحله حذفی را پیش‌بینی کنید — هر چه دقیق‌تر، امتیاز بیشتر!</p>
+      <p>نتیجه دقیق هر بازی مرحله حذفی را پیش‌بینی کنید — هر چه دقیق‌تر، امتیاز بیشتر!</p>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>⚡ امتیازدهی</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⭐ نتیجه دقیق</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۵ امتیاز</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>✅ برنده + اختلاف گل درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۳ امتیاز</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>👍 فقط برنده درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۱ امتیاز</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ اشتباه</span><span style={{ color: "#8A8290" }}>۰ امتیاز</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>⚡ امتیازدهی</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>⭐ نتیجه دقیق</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۵ امتیاز</span></div>
+        <div className="flex justify-between"><span>✅ برنده + اختلاف گل درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۳ امتیاز</span></div>
+        <div className="flex justify-between"><span>👍 فقط برنده درست</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>۱ امتیاز</span></div>
+        <div className="flex justify-between"><span>❌ اشتباه</span><span style={{ color: "#8A8290" }}>۰ امتیاز</span></div>
       </div>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🔥 ضرایب مرحله‌ای</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>یک‌شانزدهم</span><span>×۱</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>یک‌چهارم</span><span>×۲</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>نیمه‌نهایی</span><span>×۳</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>فینال</span><span>×۴</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>🔥 ضرایب مرحله‌ای</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>یک‌شانزدهم</span><span>×۱</span></div>
+        <div className="flex justify-between"><span>یک‌چهارم</span><span>×۲</span></div>
+        <div className="flex justify-between"><span>نیمه‌نهایی</span><span>×۳</span></div>
+        <div className="flex justify-between"><span>فینال</span><span>×۴</span></div>
       </div>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🏆 پیش‌بینی ویژه</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 قهرمان جهان</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۱۰ امتیاز</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⚽ آقای گل</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۸ امتیاز</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>🏆 پیش‌بینی ویژه</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>🏆 قهرمان جهان</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۱۰ امتیاز</span></div>
+        <div className="flex justify-between"><span>⚽ آقای گل</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+۸ امتیاز</span></div>
       </div>
 
-      <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "20px" }}>
+      <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "16px" }}>
         پیش‌بینی‌ها قبل از شروع هر بازی قفل می‌شوند. امتیاز منفی وجود ندارد!
       </p>
     </div>
@@ -183,33 +138,33 @@ function FarsiRules() {
 
 function EnglishRules() {
   return (
-    <div style={{ color: "#F2EDE4", fontSize: "14px" }}>
+    <div className="space-y-4 text-sm" style={{ color: "#F2EDE4" }}>
       <p style={{ fontWeight: 700, color: "#E8B74A" }}>🎯 How to Play</p>
-      <p style={{ marginTop: "8px" }}>Predict the exact score of each knockout match — the more precise your prediction, the more points you earn!</p>
+      <p>Predict the exact score of each knockout match — the more precise your prediction, the more points you earn!</p>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>⚡ Scoring</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⭐ Exact score</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>5 pts</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>✅ Right winner + goal difference</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>3 pts</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>👍 Right winner only</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>1 pt</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>❌ Wrong</span><span style={{ color: "#8A8290" }}>0 pts</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>⚡ Scoring</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>⭐ Exact score</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>5 pts</span></div>
+        <div className="flex justify-between"><span>✅ Right winner + goal difference</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>3 pts</span></div>
+        <div className="flex justify-between"><span>👍 Right winner only</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>1 pt</span></div>
+        <div className="flex justify-between"><span>❌ Wrong</span><span style={{ color: "#8A8290" }}>0 pts</span></div>
       </div>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🔥 Knockout Multipliers</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Round of 16</span><span>×1</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Quarter-finals</span><span>×2</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Semi-finals</span><span>×3</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Final</span><span>×4</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>🔥 Knockout Multipliers</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>Round of 16</span><span>×1</span></div>
+        <div className="flex justify-between"><span>Quarter-finals</span><span>×2</span></div>
+        <div className="flex justify-between"><span>Semi-finals</span><span>×3</span></div>
+        <div className="flex justify-between"><span>Final</span><span>×4</span></div>
       </div>
 
-      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "20px" }}>🏆 Bonus Predictions</p>
-      <div style={{ marginTop: "8px", color: "#ddd" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>🏆 World Cup Champion</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+10 pts</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>⚽ Tournament Top Scorer</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+8 pts</span></div>
+      <p style={{ fontWeight: 700, color: "#E8B74A", marginTop: "16px" }}>🏆 Bonus Predictions</p>
+      <div className="space-y-1.5" style={{ color: "#ddd" }}>
+        <div className="flex justify-between"><span>🏆 World Cup Champion</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+10 pts</span></div>
+        <div className="flex justify-between"><span>⚽ Tournament Top Scorer</span><span style={{ color: "#E8B74A", fontWeight: 700 }}>+8 pts</span></div>
       </div>
 
-      <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "20px" }}>
+      <p style={{ color: "#8A8290", fontSize: "12px", marginTop: "16px" }}>
         Predictions lock at kickoff. No negative points — go bold!
       </p>
     </div>

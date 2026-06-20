@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { syncIfStale } from "@/lib/football";
 import BottomNav from "@/components/BottomNav";
+import BackButton from "@/components/BackButton";
 import ResultCard from "@/components/ResultCard";
 import RoundAccordion from "@/components/RoundAccordion";
 import { stageLabel, type Stage } from "@/lib/scoring";
@@ -54,6 +55,10 @@ export default async function ResultsPage() {
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
         <div className="card-solid px-6 py-5 mb-6 text-center">
+          <div className="flex items-center justify-between mb-2">
+            <BackButton />
+            <div />
+          </div>
           <div className="text-xs font-bold tracking-widest text-gold uppercase">Results</div>
           <div className="text-muted text-xs mt-1">
             {results.filter((m) => m.status === "FINISHED").length} finished · {results.filter((m) => m.status === "IN_PLAY").length} live
