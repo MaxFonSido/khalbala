@@ -2,51 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --khal-purple: #2d1054;
-  --khal-purple-light: #4a1a8a;
-  --khal-purple-dark: #1a0a2e;
-  --khal-gold: #d9a521;
-  --khal-gold-light: #f3d88a;
-}
-
 html, body {
   padding: 0;
   margin: 0;
 }
 
 body {
-  background: radial-gradient(1200px 500px at 50% -200px, rgba(45, 16, 84, 0.15), transparent 70%), #0f0a1a;
-  color: #e8e0f0;
+  background: #0E0B14;
+  color: #F2EDE4;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
 
-.card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 1.25rem;
+.card-solid {
+  background: #211A2A;
+  border: 1px solid #332940;
+  border-radius: 0.875rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
 }
 
-.card-solid {
-  background: #1a0f2e;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 1.25rem;
+.card-active {
+  background: #211A2A;
+  border: 1px solid rgba(232,183,74,0.25);
+  border-radius: 0.875rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(232,183,74,0.15);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2d1054, #4a1a8a);
-  color: white;
+  background: #E8B74A;
+  color: #412402;
   font-weight: 700;
-  border-radius: 9999px;
-  padding: 0.75rem 2rem;
+  border-radius: 0.625rem;
+  padding: 0.6rem 1.5rem;
   transition: opacity 0.15s, transform 0.1s;
 }
 
 .btn-primary:active { transform: scale(0.97); }
 .btn-primary:disabled { opacity: 0.5; }
 
-.gold { color: var(--khal-gold); }
+.gold { color: #E8B74A; }
 .tnum { font-variant-numeric: tabular-nums; }
 
 .has-bottom-nav {
@@ -54,6 +48,6 @@ body {
 }
 
 button:focus-visible, a:focus-visible, input:focus-visible {
-  outline: 2px solid #a855f7;
+  outline: 2px solid #E8B74A;
   outline-offset: 2px;
 }

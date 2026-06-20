@@ -3,16 +3,15 @@ import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { syncIfStale } from "@/lib/football";
 import BottomNav from "@/components/BottomNav";
-import ScorePicker from "@/components/ScorePicker";
+import ResultCard from "@/components/ResultCard";
 import RoundAccordion from "@/components/RoundAccordion";
-import RulesPopup, { RulesButton } from "@/components/RulesPopup";
-import { stageLabel } from "@/lib/scoring";
+import { stageLabel, type Stage } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
 
 const ROUND_ORDER = ["LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"];
 
-export default async function GamePage() {
+export default async function ResultsPage() {
   const session = await getSession();
   if (!session) redirect("/");
 
@@ -32,15 +31,16 @@ export default async function GamePage() {
     (myPreds ?? []).map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
   );
 
-  // Only show upcoming open matches on Predict tab
-  const open = (matches ?? []).filter(
-    (m) => ["TIMED", "SCHEDULED"].includes(m.status) && new Date(m.kickoff_utc) > now
+  // Show IN_PLAY, FINISHED, and locked (past kickoff but still TIMED)
+  const results = (matches ?? []).filter(
+    (m) => m.status === "IN_PLAY" || m.status === "FINISHED" ||
+    (["TIMED", "SCHEDULED"].includes(m.status) && new Date(m.kickoff_utc) <= now)
   );
 
   // Group by round
-  type RoundGroup = { stage: string; label: string; matches: typeof open };
+  type RoundGroup = { stage: string; label: string; matches: typeof results };
   const roundMap = new Map<string, RoundGroup>();
-  for (const m of open) {
+  for (const m of results) {
     if (!roundMap.has(m.stage)) {
       roundMap.set(m.stage, { stage: m.stage, label: stageLabel(m.stage), matches: [] });
     }
@@ -52,29 +52,20 @@ export default async function GamePage() {
 
   return (
     <>
-      <RulesPopup />
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
-        {/* Header */}
         <div className="card-solid px-6 py-5 mb-6 text-center">
-          <div className="flex items-center justify-end mb-2">
-            <RulesButton />
-          </div>
-          <div className="text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
-          <div className="text-ink-text font-bold text-lg mt-1">
-            Hi {session.displayName}! 👋
-          </div>
+          <div className="text-xs font-bold tracking-widest text-gold uppercase">Results</div>
           <div className="text-muted text-xs mt-1">
-            {open.length} match{open.length !== 1 ? "es" : ""} open for prediction
+            {results.filter((m) => m.status === "FINISHED").length} finished · {results.filter((m) => m.status === "IN_PLAY").length} live
           </div>
         </div>
 
-        {/* Matches grouped by round */}
         {rounds.length === 0 && (
           <div className="card-solid p-8 text-center">
-            <div className="text-4xl mb-3">⏳</div>
-            <div className="text-ink-text font-semibold">No matches open right now</div>
+            <div className="text-4xl mb-3">📋</div>
+            <div className="text-ink-text font-semibold">No results yet</div>
             <p className="text-muted text-sm mt-2">
-              Check the Results tab for completed matches, or come back when new knockout rounds are announced.
+              Results will appear here once knockout matches kick off.
             </p>
           </div>
         )}
@@ -86,25 +77,27 @@ export default async function GamePage() {
             matchCount={round.matches.length}
             defaultOpen={i === 0}
           >
-            {round.matches.map((m) => (
-              <ScorePicker
-                key={m.id}
-                matchId={m.id}
-                teamA={m.team_a}
-                teamB={m.team_b}
-                kickoffUtc={m.kickoff_utc}
-                stage={m.stage}
-                stageLabel={stageLabel(m.stage)}
-                initialScoreA={predMap.get(m.id)?.scoreA ?? null}
-                initialScoreB={predMap.get(m.id)?.scoreB ?? null}
-                initialAdvances={predMap.get(m.id)?.advances ?? null}
-                locked={false}
-              />
-            ))}
+            {round.matches.map((m) => {
+              const pred = predMap.get(m.id);
+              return (
+                <ResultCard
+                  key={m.id}
+                  teamA={m.team_a}
+                  teamB={m.team_b}
+                  scoreA={m.score_a}
+                  scoreB={m.score_b}
+                  stage={m.stage as Stage}
+                  status={m.status}
+                  predScoreA={pred?.scoreA ?? null}
+                  predScoreB={pred?.scoreB ?? null}
+                  predAdvances={pred?.advances ?? null}
+                />
+              );
+            })}
           </RoundAccordion>
         ))}
       </main>
-      <BottomNav active="predict" />
+      <BottomNav active="results" />
     </>
   );
 }

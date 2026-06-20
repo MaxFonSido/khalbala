@@ -1,24 +1,41 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
 
-const TABS = [
-  { href: "/game", icon: "🃏", label: "Predict" },
-  { href: "/leaderboard", icon: "🏅", label: "Ranking" },
-  { href: "/bonus", icon: "⭐", label: "Bonus" },
+type NavItem = { key: string; label: string; icon: string; path: string };
+
+const tabs: NavItem[] = [
+  { key: "predict", label: "Predict", icon: "🃏", path: "/game" },
+  { key: "results", label: "Results", icon: "📋", path: "/results" },
+  { key: "ranking", label: "Ranking", icon: "🏅", path: "/leaderboard" },
+  { key: "more", label: "More", icon: "···", path: "" },
 ];
 
-export default function BottomNav({ displayName }: { displayName: string }) {
-  const path = usePathname();
+export default function BottomNav({ active }: { active?: string }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [showMore, setShowMore] = useState(false);
+
+  const current = active ?? (
+    pathname.startsWith("/game") ? "predict" :
+    pathname.startsWith("/results") ? "results" :
+    pathname.startsWith("/leaderboard") ? "ranking" :
+    pathname.startsWith("/bonus") ? "more" : ""
+  );
+
+  function handleTab(tab: NavItem) {
+    if (tab.key === "more") {
+      setShowMore((v) => !v);
+    } else {
+      setShowMore(false);
+      router.push(tab.path);
+    }
+  }
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    // Try closing the tab (works when opened via window.open from the banner)
     window.close();
-    // Fallback if browser blocks window.close() — redirect to landing page
     setTimeout(() => {
       router.push("/");
       router.refresh();
@@ -26,32 +43,55 @@ export default function BottomNav({ displayName }: { displayName: string }) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#0f0a1a]/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 pb-safe pt-2" style={{ paddingBottom: `calc(0.5rem + env(safe-area-inset-bottom, 0px))` }}>
-        {TABS.map((tab) => {
-          const active = path === tab.href;
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-colors ${
-                active ? "text-purple-400" : "text-white/40 hover:text-white/70"
-              }`}
+    <>
+      {/* More menu overlay */}
+      {showMore && (
+        <div className="fixed inset-0 z-40" onClick={() => setShowMore(false)}>
+          <div
+            className="absolute bottom-[64px] right-4 w-44 rounded-xl bg-surface border border-surface-border shadow-card overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => { setShowMore(false); router.push("/bonus"); }}
+              className="w-full px-4 py-3 text-left text-sm font-semibold text-ink-text flex items-center gap-3 active:bg-surface-btn transition-colors"
             >
-              <span className="text-xl">{tab.icon}</span>
-              <span className="text-[10px] font-semibold">{tab.label}</span>
-            </Link>
-          );
-        })}
+              <span>⭐</span> Bonus
+            </button>
+            <div className="h-px bg-surface-border" />
+            <button
+              onClick={handleLogout}
+              className="w-full px-4 py-3 text-left text-sm font-semibold text-ember flex items-center gap-3 active:bg-surface-btn transition-colors"
+            >
+              <span>🚪</span> Exit
+            </button>
+          </div>
+        </div>
+      )}
 
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-white/40 hover:text-white/70 transition-colors"
-        >
-          <span className="text-xl">🚪</span>
-          <span className="text-[10px] font-semibold">Exit</span>
-        </button>
-      </div>
-    </nav>
+      {/* Bottom nav bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-surface-border bg-ink/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-2xl items-center justify-around px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          {tabs.map((tab) => {
+            const isActive = tab.key === current || (tab.key === "more" && showMore);
+            return (
+              <button
+                key={tab.key}
+                onClick={() => handleTab(tab)}
+                className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
+                  isActive ? "text-gold" : "text-muted"
+                }`}
+              >
+                <span className={`text-lg ${isActive ? "" : "opacity-50"}`}>
+                  {tab.key === "more" ? (
+                    <span className="text-sm font-bold tracking-widest">•••</span>
+                  ) : tab.icon}
+                </span>
+                <span className="text-[10px] font-bold">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

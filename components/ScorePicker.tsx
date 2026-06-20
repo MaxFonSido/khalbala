@@ -77,54 +77,47 @@ export default function ScorePicker({
     }
   }
 
-  const multiplier = stageLbl.match(/×(\d)/)?.[1];
-
   return (
-    <div className={`card-solid px-5 py-4 transition-all ${saved ? "border-purple-600/40" : "border-white/07"}`}>
+    <div className={`px-5 py-4 transition-all ${saved ? "card-active" : "card-solid"}`}>
       {/* Stage + time */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wide">{stageLbl}</span>
-        {multiplier && multiplier !== "1" && (
-          <span className="text-[10px] font-bold text-gold bg-gold/10 rounded-full px-2 py-0.5">
-            ×{multiplier} points!
-          </span>
-        )}
+        <span className="text-[10px] font-bold text-muted uppercase tracking-wide">{stageLbl}</span>
       </div>
-      <div className="text-[10px] text-purple-300/50 mb-4">{fmtTime(kickoffUtc)}</div>
+      <div className="text-[10px] text-muted-dim mb-4">{fmtTime(kickoffUtc)}</div>
 
       {/* Score input */}
       <div className="flex items-center gap-3">
         {/* Team A */}
         <div className="flex-1 text-center">
-          <div className="text-sm font-bold text-white mb-3">{teamA}</div>
+          <div className="text-sm font-bold text-ink-text mb-3">{teamA}</div>
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => adjust("A", -1)}
-              className="h-9 w-9 rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 active:scale-90 transition-all"
+              className="h-9 w-9 rounded-full bg-surface-btn text-ink-text font-bold text-lg active:scale-90 transition-all"
             >−</button>
-            <span className="tnum text-3xl font-extrabold text-white w-10 text-center">{scoreA}</span>
+            <span className={`tnum text-3xl font-extrabold w-10 text-center ${saved || scoreA > 0 ? "text-gold" : "text-ink-text"}`}>{scoreA}</span>
             <button
               onClick={() => adjust("A", 1)}
-              className="h-9 w-9 rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 active:scale-90 transition-all"
+              className="h-9 w-9 rounded-full bg-surface-btn text-ink-text font-bold text-lg active:scale-90 transition-all"
             >+</button>
           </div>
         </div>
 
         {/* VS */}
-        <div className="text-purple-400/50 font-bold text-sm">–</div>
+        <div className="text-muted-dim font-bold text-sm">–</div>
 
         {/* Team B */}
         <div className="flex-1 text-center">
-          <div className="text-sm font-bold text-white mb-3">{teamB}</div>
+          <div className="text-sm font-bold text-ink-text mb-3">{teamB}</div>
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => adjust("B", -1)}
-              className="h-9 w-9 rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 active:scale-90 transition-all"
+              className="h-9 w-9 rounded-full bg-surface-btn text-ink-text font-bold text-lg active:scale-90 transition-all"
             >−</button>
-            <span className="tnum text-3xl font-extrabold text-white w-10 text-center">{scoreB}</span>
+            <span className={`tnum text-3xl font-extrabold w-10 text-center ${saved || scoreB > 0 ? "text-gold" : "text-ink-text"}`}>{scoreB}</span>
             <button
               onClick={() => adjust("B", 1)}
-              className="h-9 w-9 rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 active:scale-90 transition-all"
+              className="h-9 w-9 rounded-full bg-surface-btn text-ink-text font-bold text-lg active:scale-90 transition-all"
             >+</button>
           </div>
         </div>
@@ -132,17 +125,17 @@ export default function ScorePicker({
 
       {/* Who advances? — only visible on draw */}
       {isDraw && !locked && (
-        <div className="mt-4 rounded-xl bg-purple-900/30 border border-purple-700/30 p-3">
-          <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wide text-center mb-2">
-            ⚽ Who advances on penalties?
+        <div className="mt-4 rounded-xl bg-ink border border-surface-border p-3">
+          <div className="text-[10px] font-bold text-gold uppercase tracking-wide text-center mb-2">
+            Who advances on penalties?
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => { setAdvances(teamA); setSaved(false); }}
               className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
                 advances === teamA
-                  ? "bg-purple-600 text-white border border-purple-500"
-                  : "bg-white/5 text-purple-300/70 border border-purple-700/30 hover:bg-white/10"
+                  ? "bg-gold text-gold-dark border border-gold"
+                  : "bg-surface-btn text-muted border border-surface-border"
               }`}
             >
               {teamA}
@@ -151,8 +144,8 @@ export default function ScorePicker({
               onClick={() => { setAdvances(teamB); setSaved(false); }}
               className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
                 advances === teamB
-                  ? "bg-purple-600 text-white border border-purple-500"
-                  : "bg-white/5 text-purple-300/70 border border-purple-700/30 hover:bg-white/10"
+                  ? "bg-gold text-gold-dark border border-gold"
+                  : "bg-surface-btn text-muted border border-surface-border"
               }`}
             >
               {teamB}
@@ -163,15 +156,15 @@ export default function ScorePicker({
 
       {/* Locked draw — show who they picked */}
       {isDraw && locked && advances && (
-        <div className="mt-3 text-center text-xs text-purple-300/60">
-          ⚽ Advances: <span className="font-bold text-purple-300">{advances}</span>
+        <div className="mt-3 text-center text-xs text-muted">
+          Advances: <span className="font-bold text-gold">{advances}</span>
         </div>
       )}
 
       {/* Save button */}
       <div className="mt-4 flex items-center gap-3">
         {locked ? (
-          <div className="flex-1 rounded-xl py-2.5 text-sm font-bold text-center text-purple-400/60 bg-white/5 border border-purple-700/30">
+          <div className="flex-1 rounded-xl py-2.5 text-sm font-bold text-center text-muted bg-surface-btn border border-surface-border">
             🔒 Locked
           </div>
         ) : (
@@ -180,8 +173,8 @@ export default function ScorePicker({
             disabled={busy}
             className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition-all active:scale-95 ${
               saved
-                ? "bg-purple-600/30 text-purple-300 border border-purple-600/40"
-                : "bg-gradient-to-r from-purple-900 to-purple-700 text-white border border-purple-600/40 hover:from-purple-800 hover:to-purple-600"
+                ? "bg-surface-btn text-gold border border-gold/30"
+                : "btn-primary"
             }`}
           >
             {busy ? "Saving..." : saved ? "✓ Saved" : "Save Prediction"}
@@ -189,7 +182,7 @@ export default function ScorePicker({
         )}
       </div>
 
-      {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}
+      {error && <p className="text-ember text-xs mt-2 text-center">{error}</p>}
     </div>
   );
 }

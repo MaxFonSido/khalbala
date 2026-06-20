@@ -24,13 +24,11 @@ export default async function LeaderboardPage() {
   const actualChampion = meta?.find((m) => m.key === "actual_champion")?.value ?? null;
   const actualTopScorer = meta?.find((m) => m.key === "actual_top_scorer")?.value ?? null;
 
-  // Build score per user
   const userScores = new Map<string, { name: string; pts: number; exact: number; correct: number }>();
   for (const u of users ?? []) {
     userScores.set(u.id, { name: u.display_name, pts: 0, exact: 0, correct: 0 });
   }
 
-  // Match points
   for (const m of matches ?? []) {
     const matchPreds = (preds ?? []).filter((p) => p.match_id === m.id);
     for (const p of matchPreds) {
@@ -44,7 +42,6 @@ export default async function LeaderboardPage() {
     }
   }
 
-  // Bonus points
   for (const b of bonuses ?? []) {
     const entry = userScores.get(b.user_id);
     if (!entry) continue;
@@ -57,16 +54,16 @@ export default async function LeaderboardPage() {
   return (
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
-        <div className="rounded-3xl bg-gradient-to-br from-purple-900 via-purple-950 to-[#0f0a1a] px-6 py-5 mb-6 text-center border border-purple-800/30">
+        <div className="card-solid px-6 py-5 mb-6 text-center">
           <div className="text-3xl mb-1">🏅</div>
-          <div className="text-xs font-bold tracking-widest text-purple-400 uppercase">Khal Bala Ranking</div>
-          <div className="text-white font-bold mt-1">خال بالا · Leaderboard</div>
+          <div className="text-xs font-bold tracking-widest text-gold uppercase">Ranking</div>
+          <div className="text-ink-text font-bold mt-1">Khal Bala · خال بالا</div>
         </div>
 
         {sorted.length === 0 ? (
           <div className="card-solid p-8 text-center">
             <div className="text-4xl mb-3">⏳</div>
-            <p className="text-purple-300/70 text-sm">No results yet — check back after the first matches!</p>
+            <p className="text-muted text-sm">No results yet — check back after the first matches!</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -76,20 +73,20 @@ export default async function LeaderboardPage() {
               return (
                 <div
                   key={u.name}
-                  className={`card-solid px-5 py-4 flex items-center gap-4 ${isMe ? "border-purple-500/50" : ""}`}
+                  className={`card-solid px-5 py-4 flex items-center gap-4 ${isMe ? "border-gold/30" : ""}`}
                 >
                   <span className="text-xl w-8 text-center">{medal}</span>
                   <div className="flex-1">
-                    <div className={`font-bold text-sm ${isMe ? "text-purple-300" : "text-white"}`}>
+                    <div className={`font-bold text-sm ${isMe ? "text-gold" : "text-ink-text"}`}>
                       {u.name} {isMe && "· you"}
                     </div>
-                    <div className="text-xs text-purple-400/60 mt-0.5">
+                    <div className="text-xs text-muted mt-0.5">
                       {u.exact} exact · {u.correct} correct
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-extrabold text-gold">{u.pts}</div>
-                    <div className="text-[10px] text-purple-400/60">pts</div>
+                    <div className="text-[10px] text-muted">pts</div>
                   </div>
                 </div>
               );
@@ -97,7 +94,7 @@ export default async function LeaderboardPage() {
           </div>
         )}
       </main>
-      <BottomNav displayName={session.displayName} />
+      <BottomNav active="ranking" />
     </>
   );
 }

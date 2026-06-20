@@ -9,27 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        purple: {
-          950: "#1a0a2e",
-          900: "#2d1054",
-          800: "#3d1570",
-          700: "#4a1a8a",
-          600: "#6d28d9",
-          400: "#a855f7",
-          300: "#c084fc",
-          200: "#e9d5ff",
-          100: "#f3e8ff",
-          50:  "#faf5ff",
-        },
+        ink: "#0E0B14",
+        surface: "#211A2A",
+        "surface-border": "#332940",
+        "surface-btn": "#332940",
         gold: {
-          DEFAULT: "#d9a521",
-          light: "#f3d88a",
-          dark: "#a07010",
-        }
+          DEFAULT: "#E8B74A",
+          light: "#FAD888",
+          dark: "#412402",
+          dim: "#BA7517",
+        },
+        ember: "#D4574A",
+        "ink-text": "#F2EDE4",
+        muted: "#8A8290",
+        "muted-dim": "#5F5E5A",
+        accent: {
+          green: "#639922",
+          purple: "#a855f7",
+        },
       },
       boxShadow: {
-        card: "0 2px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)",
-        glow: "0 0 20px rgba(168, 85, 247, 0.3)",
+        card: "0 4px 16px rgba(0,0,0,0.35)",
+        "card-glow": "0 3px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(232,183,74,0.25)",
       }
     },
   },

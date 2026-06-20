@@ -24,10 +24,10 @@ export default async function BonusPage() {
   return (
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
-        <div className="rounded-3xl bg-gradient-to-br from-purple-900 via-purple-950 to-[#0f0a1a] px-6 py-5 mb-6 text-center border border-purple-800/30">
+        <div className="card-solid px-6 py-5 mb-6 text-center">
           <div className="text-3xl mb-1">⭐</div>
-          <div className="text-xs font-bold tracking-widest text-purple-400 uppercase">Bonus Predictions</div>
-          <div className="text-white font-bold mt-1">Big points, big glory</div>
+          <div className="text-xs font-bold tracking-widest text-gold uppercase">Bonus Predictions</div>
+          <div className="text-ink-text font-bold mt-1">Big points, big glory</div>
         </div>
 
         <BonusForm
@@ -38,21 +38,21 @@ export default async function BonusPage() {
         />
 
         <div className="mt-4 card-solid p-4">
-          <div className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-3">Points on offer</div>
-          <div className="flex items-center justify-between py-2 border-b border-white/5">
-            <div className="flex items-center gap-2 text-sm text-white">🏆 World Cup Champion</div>
+          <div className="text-xs font-bold text-gold uppercase tracking-widest mb-3">Points on offer</div>
+          <div className="flex items-center justify-between py-2 border-b border-surface-border">
+            <div className="flex items-center gap-2 text-sm text-ink-text">🏆 World Cup Champion</div>
             <div className="text-gold font-bold">+10 pts</div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-2 text-sm text-white">⚽ Tournament Top Scorer</div>
+            <div className="flex items-center gap-2 text-sm text-ink-text">⚽ Tournament Top Scorer</div>
             <div className="text-gold font-bold">+8 pts</div>
           </div>
-          <p className="text-xs text-purple-400/50 mt-3">
+          <p className="text-xs text-muted mt-3">
             These lock at the start of the knockout stage and pay out at the Final.
           </p>
         </div>
       </main>
-      <BottomNav displayName={session.displayName} />
+      <BottomNav active="more" />
     </>
   );
 }
