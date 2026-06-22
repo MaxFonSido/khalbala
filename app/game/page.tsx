@@ -77,10 +77,10 @@ export default async function GamePage() {
         {/* Header */}
         <div className="card-solid px-6 py-5 mb-6 text-center">
           <div className="flex items-center justify-between mb-2">
-            <BackButton />
             <div />
+            <BackButton />
           </div>
-          <div className="text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
+          <div className="gold-pulse text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
           <div className="text-ink-text font-bold text-lg mt-1">
             Hi {session.displayName}! 👋
           </div>
