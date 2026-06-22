@@ -80,7 +80,7 @@ export default async function GamePage() {
             <div />
             <BackButton />
           </div>
-          <div className="gold-pulse text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
+          <div className="text-xs font-bold tracking-widest text-gold uppercase">KHAL BALA · خال بالا</div>
           <div className="text-ink-text font-bold text-lg mt-1">
             Hi {session.displayName}! 👋
           </div>

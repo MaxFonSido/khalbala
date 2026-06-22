@@ -12,6 +12,7 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
+      className="gold-pulse"
       style={{
         display: "inline-flex",
         alignItems: "center",
