@@ -4,14 +4,20 @@ import { db } from "@/lib/db";
 import BottomNav from "@/components/BottomNav";
 import BackButton from "@/components/BackButton";
 import BonusForm from "@/components/BonusForm";
+import PrizeCard from "@/components/PrizeCard";
+import { scoreMatch, BONUS_CHAMPION_PTS, BONUS_TOP_SCORER_PTS } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
+
+// Tournament final is July 19 2026 — reveal prize after this date
+const TOURNAMENT_END = new Date("2026-07-20T00:00:00Z");
 
 export default async function BonusPage() {
   const session = await getSession();
   if (!session) redirect("/");
 
   const supabase = db();
+  const tournamentEnded = new Date() >= TOURNAMENT_END;
 
   const [{ data: bonus }, { data: meta }, { data: teams }, { data: players }] = await Promise.all([
     supabase.from("kb_bonus").select("champion, top_scorer").eq("user_id", session.userId).maybeSingle(),
@@ -22,6 +28,51 @@ export default async function BonusPage() {
 
   const locked = meta?.value === "true";
   const allTeams = [...new Set((teams ?? []).flatMap((m) => [m.team_a, m.team_b]))].sort();
+
+  // Winner detection — only compute after tournament ends
+  let winnerName: string | null = null;
+  let winnerEmoji: string | null = null;
+  let isWinner = false;
+
+  if (tournamentEnded) {
+    const [{ data: users }, { data: finishedMatches }, { data: preds }, { data: bonuses }, { data: metaAll }] =
+      await Promise.all([
+        supabase.from("kb_users").select("id, display_name, avatar_emoji"),
+        supabase.from("kb_matches").select("id, stage, score_a, score_b, status, kickoff_utc").eq("status", "FINISHED"),
+        supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b"),
+        supabase.from("kb_bonus").select("user_id, champion, top_scorer"),
+        supabase.from("kb_meta").select("key, value").in("key", ["actual_champion", "actual_top_scorer"]),
+      ]);
+
+    const actualChampion = metaAll?.find((m) => m.key === "actual_champion")?.value ?? null;
+    const actualTopScorer = metaAll?.find((m) => m.key === "actual_top_scorer")?.value ?? null;
+
+    const scores = new Map<string, { name: string; emoji: string | null; pts: number }>();
+    for (const u of users ?? []) {
+      scores.set(u.id, { name: u.display_name, emoji: u.avatar_emoji, pts: 0 });
+    }
+    for (const m of finishedMatches ?? []) {
+      for (const p of (preds ?? []).filter((p) => p.match_id === m.id)) {
+        const result = scoreMatch(p.score_a, p.score_b, m.score_a, m.score_b, m.stage);
+        const entry = scores.get(p.user_id);
+        if (entry) entry.pts += result.totalPoints;
+      }
+    }
+    for (const b of bonuses ?? []) {
+      const entry = scores.get(b.user_id);
+      if (!entry) continue;
+      if (actualChampion && b.champion === actualChampion) entry.pts += BONUS_CHAMPION_PTS;
+      if (actualTopScorer && b.top_scorer === actualTopScorer) entry.pts += BONUS_TOP_SCORER_PTS;
+    }
+
+    const sorted = [...scores.entries()].sort((a, b) => b[1].pts - a[1].pts);
+    const [winnerId, winnerData] = sorted[0] ?? [];
+    if (winnerId) {
+      winnerName = winnerData.name;
+      winnerEmoji = winnerData.emoji;
+      isWinner = winnerId === session.userId;
+    }
+  }
 
   return (
     <>
@@ -58,6 +109,13 @@ export default async function BonusPage() {
             These lock at the start of the knockout stage and pay out at the Final.
           </p>
         </div>
+
+        <PrizeCard
+          tournamentEnded={tournamentEnded}
+          isWinner={isWinner}
+          winnerName={winnerName}
+          winnerEmoji={winnerEmoji}
+        />
       </main>
       <BottomNav active="bonus" />
     </>
