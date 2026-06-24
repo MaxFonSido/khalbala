@@ -9,7 +9,6 @@ import { scoreMatch, BONUS_CHAMPION_PTS, BONUS_TOP_SCORER_PTS } from "@/lib/scor
 
 export const dynamic = "force-dynamic";
 
-// Tournament final is July 19 2026 — reveal prize after this date
 const TOURNAMENT_END = new Date("2026-07-20T00:00:00Z");
 
 export default async function BonusPage() {
@@ -29,7 +28,6 @@ export default async function BonusPage() {
   const locked = meta?.value === "true";
   const allTeams = [...new Set((teams ?? []).flatMap((m) => [m.team_a, m.team_b]))].sort();
 
-  // Winner detection — only compute after tournament ends
   let winnerName: string | null = null;
   let winnerEmoji: string | null = null;
   let isWinner = false;
@@ -77,6 +75,7 @@ export default async function BonusPage() {
   return (
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
+        {/* Header */}
         <div className="card-solid px-6 py-5 mb-6 text-center">
           <div className="flex items-center justify-between mb-2">
             <BackButton />
@@ -87,14 +86,26 @@ export default async function BonusPage() {
           <div className="text-ink-text font-bold mt-1">Big points, big glory</div>
         </div>
 
-        <BonusForm
-          initialChampion={bonus?.champion ?? null}
-          initialTopScorer={bonus?.top_scorer ?? null}
-          locked={locked}
-          teams={allTeams}
-          players={(players ?? []).map((p) => ({ name: p.name, team: p.team }))}
+        {/* Prize card — right under header */}
+        <PrizeCard
+          tournamentEnded={tournamentEnded}
+          isWinner={isWinner}
+          winnerName={winnerName}
+          winnerEmoji={winnerEmoji}
         />
 
+        {/* Bonus form */}
+        <div className="mt-6">
+          <BonusForm
+            initialChampion={bonus?.champion ?? null}
+            initialTopScorer={bonus?.top_scorer ?? null}
+            locked={locked}
+            teams={allTeams}
+            players={(players ?? []).map((p) => ({ name: p.name, team: p.team }))}
+          />
+        </div>
+
+        {/* Points on offer */}
         <div className="mt-4 card-solid p-4">
           <div className="text-xs font-bold text-gold uppercase tracking-widest mb-3">Points on offer</div>
           <div className="flex items-center justify-between py-2 border-b border-surface-border">
@@ -109,13 +120,6 @@ export default async function BonusPage() {
             These lock at the start of the knockout stage and pay out at the Final.
           </p>
         </div>
-
-        <PrizeCard
-          tournamentEnded={tournamentEnded}
-          isWinner={isWinner}
-          winnerName={winnerName}
-          winnerEmoji={winnerEmoji}
-        />
       </main>
       <BottomNav active="bonus" />
     </>
