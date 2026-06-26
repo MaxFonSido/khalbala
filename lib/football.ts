@@ -3,11 +3,8 @@ import { db } from "./db";
 const API = "https://api.football-data.org/v4/competitions/WC/matches";
 const STALE_MS = 5 * 60 * 1000;
 
-// Pull all matches from June 25 onward to ensure we capture
-// the Round of 32 regardless of what label football-data.org uses.
-const KNOCKOUT_START = "2026-06-25";
-
-// Group stage labels to exclude (in case some group matches fall after June 28)
+// Group stage labels to exclude — fetch all matches and filter in code,
+// same pattern as the main app (free tier token doesn't support dateFrom/dateTo).
 const GROUP_STAGES = new Set(["GROUP_STAGE", "GROUP"]);
 
 type ApiTeam = { name: string | null; tla: string | null; crest: string | null };
@@ -25,7 +22,7 @@ export async function syncKnockoutMatches(): Promise<{ updated: number }> {
   const token = process.env.FOOTBALL_DATA_TOKEN;
   if (!token) throw new Error("Missing FOOTBALL_DATA_TOKEN");
 
-  const res = await fetch(`${API}?dateFrom=${KNOCKOUT_START}&dateTo=2026-07-20`, {
+  const res = await fetch(API, {
     headers: { "X-Auth-Token": token },
     cache: "no-store",
   });
