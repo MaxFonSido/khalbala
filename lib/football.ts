@@ -3,10 +3,9 @@ import { db } from "./db";
 const API = "https://api.football-data.org/v4/competitions/WC/matches";
 const STALE_MS = 5 * 60 * 1000;
 
-// Instead of filtering by a hardcoded stage list, we pull ALL matches
-// from June 28 onward (knockout stage start). This ensures we capture
+// Pull all matches from June 25 onward to ensure we capture
 // the Round of 32 regardless of what label football-data.org uses.
-const KNOCKOUT_START = "2026-06-28";
+const KNOCKOUT_START = "2026-06-25";
 
 // Group stage labels to exclude (in case some group matches fall after June 28)
 const GROUP_STAGES = new Set(["GROUP_STAGE", "GROUP"]);
@@ -34,24 +33,19 @@ export async function syncKnockoutMatches(): Promise<{ updated: number }> {
 
   const data = (await res.json()) as { matches: ApiMatch[] };
 
-  // Pull all non-group matches with real team names (not TBD)
+  // Pull all non-group matches (including TBD teams — they'll update on next sync)
   const knockout = (data.matches ?? []).filter(
-    (m) =>
-      !GROUP_STAGES.has(m.stage) &&
-      m.homeTeam?.name &&
-      m.awayTeam?.name &&
-      m.homeTeam.name !== "TBD" &&
-      m.awayTeam.name !== "TBD"
+    (m) => !GROUP_STAGES.has(m.stage)
   );
 
   const supabase = db();
 
   const rows = knockout.map((m) => ({
     external_id: m.id,
-    team_a: m.homeTeam.name!,
-    team_b: m.awayTeam.name!,
-    team_a_crest: m.homeTeam.crest ?? null,
-    team_b_crest: m.awayTeam.crest ?? null,
+    team_a: m.homeTeam?.name ?? "TBD",
+    team_b: m.awayTeam?.name ?? "TBD",
+    team_a_crest: m.homeTeam?.crest ?? null,
+    team_b_crest: m.awayTeam?.crest ?? null,
     kickoff_utc: m.utcDate,
     stage: m.stage,
     status: m.status === "TIMED" || m.status === "SCHEDULED" ? "TIMED" : m.status,
