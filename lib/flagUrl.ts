@@ -7,7 +7,7 @@ const TEAM_TO_ISO: Record<string, string> = {
   "United States": "us", "Mexico": "mx", "Canada": "ca", "Ecuador": "ec",
   "Senegal": "sn", "Ghana": "gh", "Cameroon": "cm", "Nigeria": "ng",
   "South Africa": "za", "Egypt": "eg", "Algeria": "dz", "Tunisia": "tn",
-  "Saudi Arabia": "sa", "Iran": "ir", "Qatar": "qa", "Japan": "jp",
+  "Saudi Arabia": "sa", "Iran": "ir", "Qatar": "qa",
   "Serbia": "rs", "Poland": "pl", "Switzerland": "ch", "Denmark": "dk",
   "Sweden": "se", "Norway": "no", "Turkey": "tr", "Ukraine": "ua",
   "Colombia": "co", "Chile": "cl", "Peru": "pe", "Venezuela": "ve",
