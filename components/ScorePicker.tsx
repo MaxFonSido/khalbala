@@ -47,6 +47,7 @@ export default function ScorePicker({
   const [saved, setSaved] = useState(initialScoreA !== null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [picksOpen, setPicksOpen] = useState(false);
 
   const isDraw = scoreA === scoreB;
 
@@ -199,28 +200,68 @@ export default function ScorePicker({
 
       {error && <p className="text-ember text-xs mt-2 text-center">{error}</p>}
 
-      {/* Other players' picks */}
-      {otherPicks.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-surface-border">
-          <div className="text-[10px] font-bold text-muted uppercase tracking-wide mb-2">Family picks</div>
-          <div className="space-y-1">
-            {otherPicks.map((p) => (
-              <div key={p.name} className="flex items-center justify-between text-xs">
-                <span className="text-ink-text">
-                  {p.avatarEmoji && <span className="mr-1">{p.avatarEmoji}</span>}
-                  {p.name}
-                </span>
-                <span className="text-muted tnum">
-                  {p.scoreA}–{p.scoreB}
-                  {p.scoreA === p.scoreB && p.advances && (
-                    <span className="text-muted-dim ml-1">({p.advances})</span>
-                  )}
-                </span>
-              </div>
-            ))}
+      {/* Family Picks accordion */}
+      <div className="mt-4 pt-3 border-t border-surface-border">
+        <button
+          onClick={() => setPicksOpen((v) => !v)}
+          className="w-full flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-muted uppercase tracking-wide">Family Picks</span>
+            <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${
+              otherPicks.length > 0 ? "bg-surface-btn text-gold" : "bg-surface-btn text-muted"
+            }`}>
+              {otherPicks.length}
+            </span>
           </div>
-        </div>
-      )}
+          <svg
+            width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className={`text-muted transition-transform duration-200 ${picksOpen ? "rotate-180" : ""}`}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        {picksOpen && (
+          <div className="mt-2 space-y-1.5">
+            {otherPicks.length === 0 ? (
+              <div className="text-xs text-muted text-center py-2">No picks yet</div>
+            ) : (
+              otherPicks.map((p) => {
+                const isDraw = p.scoreA === p.scoreB;
+                const pickedA = !isDraw && p.scoreA > p.scoreB;
+                const pickedB = !isDraw && p.scoreB > p.scoreA;
+                const flagCrest = isDraw && p.advances
+                  ? (p.advances === teamA ? teamACrest : teamBCrest)
+                  : pickedA ? teamACrest : pickedB ? teamBCrest : null;
+                const flagName = isDraw && p.advances
+                  ? p.advances
+                  : pickedA ? teamA : teamB;
+
+                return (
+                  <div key={p.name} className="flex items-center gap-2.5 bg-surface-btn rounded-xl px-3 py-2">
+                    <span className="text-base leading-none">{p.avatarEmoji ?? "👤"}</span>
+                    <span className="text-xs font-semibold text-ink-text flex-1">{p.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      {flagCrest ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={flagCrest} alt={flagName} className="h-3.5 w-5 object-cover rounded-sm" />
+                      ) : (
+                        <span className="text-xs">🏳️</span>
+                      )}
+                      {isDraw && p.advances && (
+                        <span className="text-[9px] text-muted font-semibold">pens</span>
+                      )}
+                      <span className="text-xs font-bold text-gold tnum">{p.scoreA}–{p.scoreB}</span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
