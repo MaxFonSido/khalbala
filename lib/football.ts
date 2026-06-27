@@ -37,18 +37,37 @@ export async function syncKnockoutMatches(): Promise<{ updated: number }> {
 
   const supabase = db();
 
-  const rows = knockout.map((m) => ({
-    external_id: m.id,
-    team_a: m.homeTeam?.name ?? "TBD",
-    team_b: m.awayTeam?.name ?? "TBD",
-    team_a_crest: m.homeTeam?.crest ?? null,
-    team_b_crest: m.awayTeam?.crest ?? null,
-    kickoff_utc: m.utcDate,
-    stage: m.stage,
-    status: m.status === "TIMED" || m.status === "SCHEDULED" ? "TIMED" : m.status,
-    score_a: m.score?.fullTime?.home ?? null,
-    score_b: m.score?.fullTime?.away ?? null,
-  }));
+  // Fetch existing matches so we never overwrite a real team name with TBD
+  const { data: existing } = await supabase
+    .from("kb_matches")
+    .select("external_id, team_a, team_b, team_a_crest, team_b_crest");
+
+  const existingMap = new Map(
+    (existing ?? []).map((r: { external_id: number; team_a: string; team_b: string; team_a_crest: string | null; team_b_crest: string | null }) => [r.external_id, r])
+  );
+
+  const isReal = (name: string | null) => !!name && name !== "TBD";
+
+  const rows = knockout.map((m) => {
+    const prev = existingMap.get(m.id);
+    const teamA = isReal(m.homeTeam?.name) ? m.homeTeam.name! : (prev?.team_a ?? "TBD");
+    const teamB = isReal(m.awayTeam?.name) ? m.awayTeam.name! : (prev?.team_b ?? "TBD");
+    const crestA = m.homeTeam?.crest ?? prev?.team_a_crest ?? null;
+    const crestB = m.awayTeam?.crest ?? prev?.team_b_crest ?? null;
+
+    return {
+      external_id: m.id,
+      team_a: teamA,
+      team_b: teamB,
+      team_a_crest: crestA,
+      team_b_crest: crestB,
+      kickoff_utc: m.utcDate,
+      stage: m.stage,
+      status: m.status === "TIMED" || m.status === "SCHEDULED" ? "TIMED" : m.status,
+      score_a: m.score?.fullTime?.home ?? null,
+      score_b: m.score?.fullTime?.away ?? null,
+    };
+  });
 
   if (rows.length > 0) {
     const { error } = await supabase
