@@ -34,6 +34,7 @@ export default async function BonusPage() {
   const bonusByUser = new Map((allBonus ?? []).map((b) => [b.user_id, b]));
 
   const familyPicks = (users ?? [])
+    .filter((u) => bonusByUser.has(u.id))
     .sort((a, b) => {
       if (a.id === session.userId) return -1;
       if (b.id === session.userId) return 1;
