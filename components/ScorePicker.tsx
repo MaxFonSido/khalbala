@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type OtherPick = { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null };
+type OtherPick = { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null; isMe: boolean };
 
 type Props = {
   matchId: string;
@@ -231,29 +231,35 @@ export default function ScorePicker({
               otherPicks.map((p) => {
                 const isDraw = p.scoreA === p.scoreB;
                 const pickedA = !isDraw && p.scoreA > p.scoreB;
-                const pickedB = !isDraw && p.scoreB > p.scoreA;
                 const flagCrest = isDraw && p.advances
                   ? (p.advances === teamA ? teamACrest : teamBCrest)
-                  : pickedA ? teamACrest : pickedB ? teamBCrest : null;
-                const flagName = isDraw && p.advances
+                  : pickedA ? teamACrest : teamBCrest;
+                const winnerName = isDraw && p.advances
                   ? p.advances
                   : pickedA ? teamA : teamB;
+                const displayScore = isDraw
+                  ? `${p.scoreA}–${p.scoreB}`
+                  : pickedA
+                  ? `${p.scoreA}–${p.scoreB}`
+                  : `${p.scoreB}–${p.scoreA}`;
+                const label = isDraw && p.advances ? "pens" : "wins";
 
                 return (
-                  <div key={p.name} className="flex items-center gap-2.5 bg-surface-btn rounded-xl px-3 py-2">
+                  <div key={p.name} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${p.isMe ? "bg-gold/10 border border-gold/20" : "bg-surface-btn"}`}>
                     <span className="text-base leading-none">{p.avatarEmoji ?? "👤"}</span>
-                    <span className="text-xs font-semibold text-ink-text flex-1">{p.name}</span>
+                    <span className="text-xs font-semibold text-ink-text flex-1">
+                      {p.name}
+                      {p.isMe && <span className="text-[10px] text-gold ml-1">(you)</span>}
+                    </span>
                     <div className="flex items-center gap-1.5">
                       {flagCrest ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={flagCrest} alt={flagName} className="h-3.5 w-5 object-cover rounded-sm" />
+                        <img src={flagCrest} alt={winnerName} className="h-3.5 w-5 object-cover rounded-sm" />
                       ) : (
                         <span className="text-xs">🏳️</span>
                       )}
-                      {isDraw && p.advances && (
-                        <span className="text-[9px] text-muted font-semibold">pens</span>
-                      )}
-                      <span className="text-xs font-bold text-gold tnum">{p.scoreA}–{p.scoreB}</span>
+                      <span className="text-[10px] text-muted font-semibold">{winnerName} {label}</span>
+                      <span className="text-xs font-bold text-gold tnum ml-1">{displayScore}</span>
                     </div>
                   </div>
                 );

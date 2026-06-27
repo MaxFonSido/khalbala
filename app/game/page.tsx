@@ -36,20 +36,23 @@ export default async function GamePage() {
     myPreds.map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
   );
 
-  // Other users' picks per match
-  const otherPicksByMatch = new Map<string, { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null }[]>();
+  // All picks per match (including current user, marked with isMe)
+  const allPicksByMatch = new Map<string, { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null; isMe: boolean }[]>();
   for (const p of allPreds ?? []) {
-    if (p.user_id === session.userId) continue;
-    const u = userById.get(p.user_id);
-    const list = otherPicksByMatch.get(p.match_id) ?? [];
+    const isMe = p.user_id === session.userId;
+    const u = isMe
+      ? { name: session.displayName, emoji: null }
+      : userById.get(p.user_id);
+    const list = allPicksByMatch.get(p.match_id) ?? [];
     list.push({
       name: u?.name ?? "?",
       avatarEmoji: u?.emoji ?? null,
       scoreA: p.score_a,
       scoreB: p.score_b,
       advances: p.advances,
+      isMe,
     });
-    otherPicksByMatch.set(p.match_id, list);
+    allPicksByMatch.set(p.match_id, list);
   }
 
   // Show ALL matches that haven't kicked off yet (no 24h window)
@@ -121,7 +124,7 @@ export default async function GamePage() {
                 initialScoreB={predMap.get(m.id)?.scoreB ?? null}
                 initialAdvances={predMap.get(m.id)?.advances ?? null}
                 locked={false}
-                otherPicks={otherPicksByMatch.get(m.id) ?? []}
+                otherPicks={allPicksByMatch.get(m.id) ?? []}
               />
             ))}
           </RoundAccordion>
