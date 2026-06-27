@@ -125,6 +125,8 @@ export default async function GamePage() {
                 initialAdvances={predMap.get(m.id)?.advances ?? null}
                 locked={false}
                 otherPicks={allPicksByMatch.get(m.id) ?? []}
+                myName={session.displayName}
+                myEmoji={null}
               />
             ))}
           </RoundAccordion>
