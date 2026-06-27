@@ -18,6 +18,8 @@ type Props = {
   initialAdvances: string | null;
   locked: boolean;
   otherPicks: OtherPick[];
+  myName: string;
+  myEmoji: string | null;
 };
 
 const TZ = "America/New_York";
@@ -39,7 +41,7 @@ function Crest({ url, name }: { url: string | null; name: string }) {
 
 export default function ScorePicker({
   matchId, teamA, teamB, teamACrest, teamBCrest, kickoffUtc, stageLabel: stageLbl,
-  initialScoreA, initialScoreB, initialAdvances, locked, otherPicks,
+  initialScoreA, initialScoreB, initialAdvances, locked, otherPicks, myName, myEmoji,
 }: Props) {
   const [scoreA, setScoreA] = useState<number>(initialScoreA ?? 0);
   const [scoreB, setScoreB] = useState<number>(initialScoreB ?? 0);
@@ -48,6 +50,7 @@ export default function ScorePicker({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [picksOpen, setPicksOpen] = useState(false);
+  const [picks, setPicks] = useState<OtherPick[]>(otherPicks);
 
   const isDraw = scoreA === scoreB;
 
@@ -78,6 +81,14 @@ export default function ScorePicker({
       });
       if (res.ok) {
         setSaved(true);
+        // Optimistically update picks list
+        setPicks((prev) => {
+          const filtered = prev.filter((p) => !p.isMe);
+          return [
+            { name: myName, avatarEmoji: myEmoji, scoreA, scoreB, advances: isDraw ? advances : null, isMe: true },
+            ...filtered,
+          ];
+        });
       } else {
         const d = await res.json();
         setError(d.error ?? "Failed to save");
@@ -209,9 +220,9 @@ export default function ScorePicker({
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold text-muted uppercase tracking-wide">Family Picks</span>
             <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${
-              otherPicks.length > 0 ? "bg-surface-btn text-gold" : "bg-surface-btn text-muted"
+              picks.length > 0 ? "bg-surface-btn text-gold" : "bg-surface-btn text-muted"
             }`}>
-              {otherPicks.length}
+              {picks.length}
             </span>
           </div>
           <svg
@@ -225,10 +236,10 @@ export default function ScorePicker({
 
         {picksOpen && (
           <div className="mt-2 space-y-1.5">
-            {otherPicks.length === 0 ? (
+            {picks.length === 0 ? (
               <div className="text-xs text-muted text-center py-2">No picks yet</div>
             ) : (
-              otherPicks.map((p) => {
+              picks.map((p) => {
                 const isDraw = p.scoreA === p.scoreB;
                 const pickedA = !isDraw && p.scoreA > p.scoreB;
                 const flagCrest = isDraw && p.advances
@@ -245,7 +256,7 @@ export default function ScorePicker({
                 const label = isDraw && p.advances ? "pens" : "wins";
 
                 return (
-                  <div key={p.name} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${p.isMe ? "bg-gold/10 border border-gold/20" : "bg-surface-btn"}`}>
+                  <div key={`${p.name}-${p.scoreA}-${p.scoreB}-${p.advances ?? ""}`} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${p.isMe ? "bg-gold/10 border border-gold/20" : "bg-surface-btn"}`}>
                     <span className="text-base leading-none">{p.avatarEmoji ?? "👤"}</span>
                     <span className="text-xs font-semibold text-ink-text flex-1">
                       {p.name}
