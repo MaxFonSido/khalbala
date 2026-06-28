@@ -120,7 +120,11 @@ export default function ResultCard({
 
           {picksOpen && (
             <div className="mt-2 space-y-1.5">
-              {familyPicks.map((p) => {
+              {[...familyPicks].sort((a, b) => {
+                const ptsA = isFinished ? (scoreMatch(a.scoreA, a.scoreB, scoreA, scoreB, stage)?.totalPoints ?? 0) : 0;
+                const ptsB = isFinished ? (scoreMatch(b.scoreA, b.scoreB, scoreA, scoreB, stage)?.totalPoints ?? 0) : 0;
+                return ptsB - ptsA;
+              }).map((p) => {
                 const pickResult = isFinished
                   ? scoreMatch(p.scoreA, p.scoreB, scoreA, scoreB, stage)
                   : null;
