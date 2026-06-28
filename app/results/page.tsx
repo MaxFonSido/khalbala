@@ -34,7 +34,7 @@ export default async function ResultsPage() {
 
   // Show IN_PLAY, FINISHED, and locked (past kickoff but still TIMED)
   const results = (matches ?? []).filter(
-    (m) => m.status === "IN_PLAY" || m.status === "FINISHED" ||
+    (m) => ["IN_PLAY", "FINISHED", "PAUSED"].includes(m.status) ||
     (["TIMED", "SCHEDULED"].includes(m.status) && new Date(m.kickoff_utc) <= now)
   );
 

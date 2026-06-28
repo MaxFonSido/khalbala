@@ -63,7 +63,7 @@ export async function syncKnockoutMatches(): Promise<{ updated: number }> {
       team_b_crest: crestB,
       kickoff_utc: m.utcDate,
       stage: m.stage,
-      status: m.status === "TIMED" || m.status === "SCHEDULED" ? "TIMED" : m.status,
+      status: ["TIMED", "SCHEDULED"].includes(m.status) ? "TIMED" : m.status,
       score_a: m.score?.fullTime?.home ?? null,
       score_b: m.score?.fullTime?.away ?? null,
     };
