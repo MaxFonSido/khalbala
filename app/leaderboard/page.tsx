@@ -18,8 +18,8 @@ export default async function LeaderboardPage() {
   const [{ data: users }, { data: matches }, { data: preds }, { data: bonuses }, { data: meta }] =
     await Promise.all([
       supabase.from("kb_users").select("id, display_name, avatar_emoji"),
-      supabase.from("kb_matches").select("id, stage, score_a, score_b, status, kickoff_utc").eq("status", "FINISHED"),
-      supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b"),
+      supabase.from("kb_matches").select("id, stage, team_a, team_b, score_a, score_b, status, kickoff_utc").in("status", ["FINISHED", "PAUSED"]),
+      supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b, advances"),
       supabase.from("kb_bonus").select("user_id, champion, top_scorer"),
       supabase.from("kb_meta").select("key, value").in("key", ["actual_champion", "actual_top_scorer"]),
     ]);
@@ -35,7 +35,7 @@ export default async function LeaderboardPage() {
   for (const m of matches ?? []) {
     const matchPreds = (preds ?? []).filter((p) => p.match_id === m.id);
     for (const p of matchPreds) {
-      const result = scoreMatch(p.score_a, p.score_b, m.score_a, m.score_b, m.stage);
+      const result = scoreMatch(p.score_a, p.score_b, m.score_a, m.score_b, m.stage, p.advances, m.team_a, m.team_b);
       const entry = userScores.get(p.user_id);
       if (entry) {
         entry.pts += result.totalPoints;
@@ -59,8 +59,8 @@ export default async function LeaderboardPage() {
   // Calculate badges
   const badgeMap = calculateBadges(
     (users ?? []).map((u) => ({ id: u.id, name: u.display_name })),
-    (matches ?? []).map((m) => ({ id: m.id, stage: m.stage, score_a: m.score_a, score_b: m.score_b, kickoff_utc: m.kickoff_utc })),
-    (preds ?? []).map((p) => ({ user_id: p.user_id, match_id: p.match_id, score_a: p.score_a, score_b: p.score_b }))
+    (matches ?? []).map((m) => ({ id: m.id, stage: m.stage, team_a: m.team_a, team_b: m.team_b, score_a: m.score_a, score_b: m.score_b, kickoff_utc: m.kickoff_utc })),
+    (preds ?? []).map((p) => ({ user_id: p.user_id, match_id: p.match_id, score_a: p.score_a, score_b: p.score_b, advances: p.advances }))
   );
 
   return (

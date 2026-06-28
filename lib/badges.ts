@@ -46,8 +46,8 @@ export const ALL_BADGES: Record<string, Badge> = {
   },
 };
 
-type MatchData = { id: string; stage: string; score_a: number; score_b: number; kickoff_utc: string };
-type PredData = { user_id: string; match_id: string; score_a: number; score_b: number };
+type MatchData = { id: string; stage: string; team_a: string; team_b: string; score_a: number; score_b: number; kickoff_utc: string };
+type PredData = { user_id: string; match_id: string; score_a: number; score_b: number; advances?: string | null };
 
 export function calculateBadges(
   users: { id: string; name: string }[],
@@ -83,7 +83,7 @@ export function calculateBadges(
       if (!pred) { currentStreak = 0; continue; }
       total++;
 
-      const result = scoreMatch(pred.score_a, pred.score_b, m.score_a, m.score_b, m.stage as Stage);
+      const result = scoreMatch(pred.score_a, pred.score_b, m.score_a, m.score_b, m.stage as Stage, pred.advances, m.team_a, m.team_b);
       pts += result.totalPoints;
 
       if (result.label !== "wrong") {

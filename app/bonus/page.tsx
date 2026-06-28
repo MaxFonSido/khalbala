@@ -58,8 +58,8 @@ export default async function BonusPage() {
 
   if (tournamentEnded) {
     const [{ data: finishedMatches }, { data: preds }, { data: bonuses }, { data: metaAll }] = await Promise.all([
-      supabase.from("kb_matches").select("id, stage, score_a, score_b, status, kickoff_utc").eq("status", "FINISHED"),
-      supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b"),
+      supabase.from("kb_matches").select("id, stage, team_a, team_b, score_a, score_b, status, kickoff_utc").in("status", ["FINISHED", "PAUSED"]),
+      supabase.from("kb_predictions").select("user_id, match_id, score_a, score_b, advances"),
       supabase.from("kb_bonus").select("user_id, champion, top_scorer"),
       supabase.from("kb_meta").select("key, value").in("key", ["actual_champion", "actual_top_scorer"]),
     ]);
@@ -71,7 +71,7 @@ export default async function BonusPage() {
     for (const u of users ?? []) scores.set(u.id, { name: u.display_name, emoji: u.avatar_emoji, pts: 0 });
     for (const m of finishedMatches ?? []) {
       for (const p of (preds ?? []).filter((p) => p.match_id === m.id)) {
-        const result = scoreMatch(p.score_a, p.score_b, m.score_a, m.score_b, m.stage);
+        const result = scoreMatch(p.score_a, p.score_b, m.score_a, m.score_b, m.stage, p.advances, m.team_a, m.team_b);
         const entry = scores.get(p.user_id);
         if (entry) entry.pts += result.totalPoints;
       }
