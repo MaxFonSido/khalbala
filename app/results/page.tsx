@@ -21,12 +21,28 @@ export default async function ResultsPage() {
   const supabase = db();
   const now = new Date();
 
-  const [{ data: matches }, { data: myPreds }] = await Promise.all([
+  const [{ data: matches }, { data: myPreds }, { data: allPreds }, { data: users }] = await Promise.all([
     supabase.from("kb_matches").select("*").order("kickoff_utc", { ascending: true }),
     supabase.from("kb_predictions")
       .select("match_id, score_a, score_b, advances")
       .eq("user_id", session.userId),
+    supabase.from("kb_predictions")
+      .select("user_id, match_id, score_a, score_b, advances"),
+    supabase.from("kb_users").select("id, display_name, avatar_emoji"),
   ]);
+
+  const userById = new Map((users ?? []).map((u) => [u.id, { name: u.display_name as string, emoji: u.avatar_emoji as string | null }]));
+
+  // Build per-match family picks map
+  type FamilyPick = { name: string; avatarEmoji: string | null; scoreA: number; scoreB: number; advances: string | null; isMe: boolean };
+  const familyPicksByMatch = new Map<string, FamilyPick[]>();
+  for (const p of allPreds ?? []) {
+    const isMe = p.user_id === session.userId;
+    const u = isMe ? { name: session.displayName, emoji: null } : userById.get(p.user_id);
+    const list = familyPicksByMatch.get(p.match_id) ?? [];
+    list.push({ name: u?.name ?? "?", avatarEmoji: u?.emoji ?? null, scoreA: p.score_a, scoreB: p.score_b, advances: p.advances, isMe });
+    familyPicksByMatch.set(p.match_id, list);
+  }
 
   const predMap = new Map(
     (myPreds ?? []).map((p) => [p.match_id, { scoreA: p.score_a, scoreB: p.score_b, advances: p.advances }])
@@ -98,6 +114,7 @@ export default async function ResultsPage() {
                   predScoreA={pred?.scoreA ?? null}
                   predScoreB={pred?.scoreB ?? null}
                   predAdvances={pred?.advances ?? null}
+                  familyPicks={familyPicksByMatch.get(m.id) ?? []}
                 />
               );
             })}
