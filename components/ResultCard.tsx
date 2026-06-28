@@ -35,7 +35,7 @@ export default function ResultCard({
   const hasPick = predScoreA !== null && predScoreB !== null;
   const isLive = status === "IN_PLAY" || status === "PAUSED";
   const isFinished = status === "FINISHED" || status === "PAUSED";
-  const result = hasPick && isFinished ? scoreMatch(predScoreA!, predScoreB!, scoreA, scoreB, stage) : null;
+  const result = hasPick && isFinished ? scoreMatch(predScoreA!, predScoreB!, scoreA, scoreB, stage, predAdvances, teamA, teamB) : null;
 
   const accent = isLive
     ? "border-l-gold"
@@ -121,12 +121,12 @@ export default function ResultCard({
           {picksOpen && (
             <div className="mt-2 space-y-1.5">
               {[...familyPicks].sort((a, b) => {
-                const ptsA = isFinished ? (scoreMatch(a.scoreA, a.scoreB, scoreA, scoreB, stage)?.totalPoints ?? 0) : 0;
-                const ptsB = isFinished ? (scoreMatch(b.scoreA, b.scoreB, scoreA, scoreB, stage)?.totalPoints ?? 0) : 0;
+                const ptsA = isFinished ? (scoreMatch(a.scoreA, a.scoreB, scoreA, scoreB, stage, a.advances, teamA, teamB)?.totalPoints ?? 0) : 0;
+                const ptsB = isFinished ? (scoreMatch(b.scoreA, b.scoreB, scoreA, scoreB, stage, b.advances, teamA, teamB)?.totalPoints ?? 0) : 0;
                 return ptsB - ptsA;
               }).map((p) => {
                 const pickResult = isFinished
-                  ? scoreMatch(p.scoreA, p.scoreB, scoreA, scoreB, stage)
+                  ? scoreMatch(p.scoreA, p.scoreB, scoreA, scoreB, stage, p.advances, teamA, teamB)
                   : null;
                 const pts = pickResult?.totalPoints ?? null;
                 const isDraw = p.scoreA === p.scoreB;

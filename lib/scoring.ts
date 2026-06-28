@@ -58,7 +58,10 @@ export function scoreMatch(
   predictedB: number,
   actualA: number,
   actualB: number,
-  stage: Stage
+  stage: Stage,
+  advances?: string | null,
+  teamA?: string,
+  teamB?: string
 ): ScoreResult {
   const multiplier = stageMultiplier(stage);
 
@@ -67,7 +70,15 @@ export function scoreMatch(
     return { basePoints: 5, multiplier, totalPoints: 5 * multiplier, label: "exact" };
   }
 
-  const predictedWinner = Math.sign(predictedA - predictedB);
+  // Determine predicted winner — if draw predicted, use penalty advance pick
+  const predictedDraw = predictedA === predictedB;
+  let predictedWinner: number;
+  if (predictedDraw && advances && teamA && teamB) {
+    predictedWinner = advances === teamA ? 1 : advances === teamB ? -1 : 0;
+  } else {
+    predictedWinner = Math.sign(predictedA - predictedB);
+  }
+
   const actualWinner = Math.sign(actualA - actualB);
   const correctWinner = predictedWinner === actualWinner;
 
