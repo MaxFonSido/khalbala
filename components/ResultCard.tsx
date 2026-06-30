@@ -14,6 +14,7 @@ type Props = {
   scoreB: number;
   stage: Stage;
   status: string;
+  kickoffUtc: string;
   predScoreA: number | null;
   predScoreB: number | null;
   predAdvances: string | null;
@@ -27,10 +28,16 @@ function Crest({ url, name }: { url: string | null; name: string }) {
 }
 
 export default function ResultCard({
-  teamA, teamB, teamACrest, teamBCrest, scoreA, scoreB, stage, status,
+  teamA, teamB, teamACrest, teamBCrest, scoreA, scoreB, stage, status, kickoffUtc,
   predScoreA, predScoreB, predAdvances, familyPicks,
 }: Props) {
   const [picksOpen, setPicksOpen] = useState(false);
+
+  const matchDate = new Date(kickoffUtc).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "America/New_York",
+  });
 
   const hasPick = predScoreA !== null && predScoreB !== null;
   const isLive = status === "IN_PLAY" || status === "PAUSED";
@@ -63,7 +70,7 @@ export default function ResultCard({
     <div className={`card-solid border-l-[3px] ${accent} rounded-l-md px-4 py-3.5`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-bold text-muted uppercase tracking-wide">
-          {stageLabel(stage)}
+          {stageLabel(stage)} <span className="text-muted-dim normal-case">· {matchDate}</span>
         </span>
         <span className={`text-xs font-bold ${ptsColor}`}>
           {isLive ? (

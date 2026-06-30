@@ -67,6 +67,13 @@ export default async function ResultsPage() {
     .filter((s) => roundMap.has(s))
     .map((s) => roundMap.get(s)!);
 
+  // Within each round, show newest match first
+  for (const round of rounds) {
+    round.matches.sort(
+      (a, b) => new Date(b.kickoff_utc).getTime() - new Date(a.kickoff_utc).getTime()
+    );
+  }
+
   return (
     <>
       <main className="mx-auto max-w-2xl px-4 py-6 has-bottom-nav">
@@ -111,6 +118,7 @@ export default async function ResultsPage() {
                   scoreB={m.score_b}
                   stage={m.stage as Stage}
                   status={m.status}
+                  kickoffUtc={m.kickoff_utc}
                   predScoreA={pred?.scoreA ?? null}
                   predScoreB={pred?.scoreB ?? null}
                   predAdvances={pred?.advances ?? null}
