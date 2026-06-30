@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import BottomNav from "@/components/BottomNav";
 import BackButton from "@/components/BackButton";
 import BadgeTooltip from "@/components/BadgeTooltip";
+import ScoreBreakdown, { type MatchLine, type BonusLine } from "@/components/ScoreBreakdown";
 import { scoreMatch, BONUS_CHAMPION_PTS, BONUS_TOP_SCORER_PTS } from "@/lib/scoring";
 import { calculateBadges, ALL_BADGES } from "@/lib/badges";
 
@@ -32,6 +33,11 @@ export default async function LeaderboardPage() {
     userScores.set(u.id, { name: u.display_name, emoji: u.avatar_emoji, pts: 0, exact: 0, correct: 0 });
   }
 
+  const breakdownMap = new Map<string, { matches: (MatchLine & { kickoff: string })[]; bonuses: BonusLine[] }>();
+  for (const u of users ?? []) {
+    breakdownMap.set(u.id, { matches: [], bonuses: [] });
+  }
+
   for (const m of matches ?? []) {
     const matchPreds = (preds ?? []).filter((p) => p.match_id === m.id);
     for (const p of matchPreds) {
@@ -42,14 +48,41 @@ export default async function LeaderboardPage() {
         if (result.label === "exact") entry.exact++;
         if (result.label !== "wrong") entry.correct++;
       }
+      const bd = breakdownMap.get(p.user_id);
+      if (bd) {
+        bd.matches.push({
+          matchId: m.id,
+          label: `${m.team_a} vs ${m.team_b}`,
+          guess: `${p.score_a}-${p.score_b}`,
+          pts: result.totalPoints,
+          kickoff: m.kickoff_utc,
+        });
+      }
     }
   }
 
+  for (const bd of breakdownMap.values()) {
+    bd.matches.sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime());
+  }
+
   for (const b of bonuses ?? []) {
-    const entry = userScores.get(b.user_id);
-    if (!entry) continue;
-    if (actualChampion && b.champion === actualChampion) entry.pts += BONUS_CHAMPION_PTS;
-    if (actualTopScorer && b.top_scorer === actualTopScorer) entry.pts += BONUS_TOP_SCORER_PTS;
+    const bd = breakdownMap.get(b.user_id);
+    if (bd) {
+      if (b.champion) {
+        bd.bonuses.push({
+          label: "Champion pick",
+          guess: b.champion,
+          pts: actualChampion && b.champion === actualChampion ? BONUS_CHAMPION_PTS : 0,
+        });
+      }
+      if (b.top_scorer) {
+        bd.bonuses.push({
+          label: "Top Scorer pick",
+          guess: b.top_scorer,
+          pts: actualTopScorer && b.top_scorer === actualTopScorer ? BONUS_TOP_SCORER_PTS : 0,
+        });
+      }
+    }
   }
 
   const sorted = [...userScores.entries()]
@@ -90,37 +123,43 @@ export default async function LeaderboardPage() {
               return (
                 <div
                   key={u.id}
-                  className={`card-solid px-5 py-4 flex items-center gap-3 ${isMe ? "border-gold/30" : ""}`}
+                  className={`card-solid px-5 py-4 ${isMe ? "border-gold/30" : ""}`}
                 >
-                  <span className="text-xl w-8 text-center shrink-0">{medal}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-bold text-sm ${isMe ? "text-gold" : "text-ink-text"}`}>
-                      {u.emoji && <span className="mr-1">{u.emoji}</span>}
-                      {u.name} {isMe && "· you"}
-                    </div>
-                    <div className="text-xs text-muted mt-0.5">
-                      {u.exact} exact · {u.correct} correct
-                    </div>
-                    {userBadges.length > 0 && (
-                      <div className="flex gap-1.5 mt-1.5">
-                        {userBadges.map((bKey) => {
-                          const b = ALL_BADGES[bKey];
-                          return b ? (
-                            <BadgeTooltip
-                              key={bKey}
-                              emoji={b.emoji}
-                              name={b.name}
-                              description={b.description}
-                            />
-                          ) : null;
-                        })}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl w-8 text-center shrink-0">{medal}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-bold text-sm ${isMe ? "text-gold" : "text-ink-text"}`}>
+                        {u.emoji && <span className="mr-1">{u.emoji}</span>}
+                        {u.name} {isMe && "· you"}
                       </div>
-                    )}
+                      <div className="text-xs text-muted mt-0.5">
+                        {u.exact} exact · {u.correct} correct
+                      </div>
+                      {userBadges.length > 0 && (
+                        <div className="flex gap-1.5 mt-1.5">
+                          {userBadges.map((bKey) => {
+                            const b = ALL_BADGES[bKey];
+                            return b ? (
+                              <BadgeTooltip
+                                key={bKey}
+                                emoji={b.emoji}
+                                name={b.name}
+                                description={b.description}
+                              />
+                            ) : null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-xl font-extrabold text-gold">{u.pts}</div>
+                      <div className="text-[10px] text-muted">pts</div>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-xl font-extrabold text-gold">{u.pts}</div>
-                    <div className="text-[10px] text-muted">pts</div>
-                  </div>
+                  <ScoreBreakdown
+                    matches={(breakdownMap.get(u.id)?.matches ?? []).map(({ kickoff, ...rest }) => rest)}
+                    bonuses={breakdownMap.get(u.id)?.bonuses ?? []}
+                  />
                 </div>
               );
             })}
