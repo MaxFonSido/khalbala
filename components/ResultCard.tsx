@@ -46,21 +46,21 @@ export default function ResultCard({
 
   const accent = isLive
     ? "border-l-gold"
-    : !hasPick
+    : !result
     ? "border-l-muted-dim"
-    : result!.label === "exact"
+    : result.label === "exact"
     ? "border-l-gold"
-    : result!.label === "winner+gd"
+    : result.label === "winner+gd"
     ? "border-l-accent-green"
-    : result!.label === "winner"
+    : result.label === "winner"
     ? "border-l-accent-purple"
     : "border-l-muted-dim";
 
   const ptsColor = isLive
     ? "text-gold"
-    : !hasPick
+    : !result
     ? "text-muted-dim"
-    : result!.totalPoints > 0
+    : result.totalPoints > 0
     ? "text-gold"
     : "text-muted-dim";
 
@@ -78,8 +78,10 @@ export default function ResultCard({
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
               LIVE
             </span>
+          ) : hasPick && result ? (
+            result.totalPoints > 0 ? `+${result.totalPoints} pt${result.totalPoints !== 1 ? "s" : ""}` : "0 pts"
           ) : hasPick ? (
-            result!.totalPoints > 0 ? `+${result!.totalPoints} pt${result!.totalPoints !== 1 ? "s" : ""}` : "0 pts"
+            "Pending"
           ) : "No pick"}
         </span>
       </div>
